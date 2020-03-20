@@ -1,6 +1,10 @@
 import io from 'socket.io-client'
 
-const socket = io('/room1')
+const path = document.location.pathname.split('/')
+const roomPathIndex = path.findIndex(item => item === 'room')
+const room = '/' + path[roomPathIndex] + path[roomPathIndex + 1]
+const socket = io(room)
+console.log(room)
 
 const form = document.getElementById('form')
 const m = document.getElementById('m')
@@ -13,14 +17,6 @@ form.addEventListener('submit', e => {
   m.value = ''
 })
 
-// export const submitMessage = e => {
-//   console.log('hello hello')
-//   e.preventDefault()
-//   socket.emit('msg', m.value)
-//   m.value = ''
-// }
-
-// const socket = io('/room1')
 socket.on('msg', msg => {
   console.log('hello hellooooo')
   const li = document.createElement('li')

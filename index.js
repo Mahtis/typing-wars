@@ -7,36 +7,33 @@ const app = express()
 const server = http.createServer(app)
 const io = _io(server)
 
+const rooms = ['room1', 'room2', 'room3', 'room4', 'room5']
+
 app.use('/', express.static(__dirname + '/dist', { 'index': 'room.html' }));
 
-// app.get('/', async (req, res) => {
-//   res.sendFile(__dirname + '/index.html')
-// })
-
-// app.get('/room1', async (req, res) => {
-//   res.sendFile(__dirname + '/room.html')
-// })
+app.use('/room/:room', express.static(__dirname + '/dist', { 'index': 'room.html' }));
 
 io.on('connection', (socket) => {
-  // io.of('/').clients((error, clients) => {
-  //   if (error) throw error;
-  //   console.log(clients);
-  // });
   socket.on('chat message', function(msg){
     io.emit('chat message', msg);
   });
 })
 
-const room1 = io.of('room1');
-room1.on('connection', socket => {
-  room1.clients((error, clients) => {
+rooms.forEach(room => {
+  const roomNamespace = io.of(room);
+  roomNamespace.on('connection', socket => {
+  roomNamespace.clients((error, clients) => {
     console.log(clients)
+    if (clients.length > 2) {
+      socket.disconnect(true)
+    }
   })
   socket.on('msg', msg => {
     console.log(msg)
     socket.emit('msg', 'PRIVAVIESTI ' + msg)
-    room1.emit('msg', msg)
+    roomNamespace.emit('msg', msg)
   })
+})
 })
 
 server.listen(PORT, () => console.log('App listening on ' + PORT 
