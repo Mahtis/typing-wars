@@ -11,22 +11,33 @@ const gameState = (rows, cols) => {
     moveWordsDown();
   };
 
+  const createNewRowForWord = (word, pos, row) => {
+    const startOfRow = row.substring(0, pos);
+    const endOfRow = row.substring(pos + word.length);
+    return startOfRow + word + endOfRow;
+  }
+
+  // for vertical words, rows have to be remade for every character
+  const createRowsForVerticalWord = (word, board) => {
+    const rows = [...word.word].map((char, i) => {
+      const currentRow = word.row - i
+      if (currentRow >= 0) {
+        const newRow = createNewRowForWord(char, word.char, board[currentRow])
+        return { index: currentRow, row: newRow};
+      }
+    });
+    return rows.filter(row => row !== undefined)
+  }
+
   const addWordToBoard = (word, board) => {
+    let newRows = []
     if (word.orientation === 'VERTICAL') {
-      [...word.word].forEach((char, i) => {
-        if (word.row - i >= 0) {
-          const startOfRow = board[word.row - i].substring(0, word.char);
-          const endOfRow = board[word.row - i].substring(word.char + 1);
-          const newRow = startOfRow + char + endOfRow;
-          board[word.row - i] = newRow;
-        }
-      });
+      newRows = createRowsForVerticalWord(word, board);
     } else {
-      const startOfRow = board[word.row].substring(0, word.char);
-      const endOfRow = board[word.row].substring(word.char + word.word.length);
-      const newRow = startOfRow + word.word + endOfRow;
-      board[word.row] = newRow;
+      const newRow = createNewRowForWord(word.word, word.char, board[word.row]);
+      newRows.push({ index: word.row, row: newRow });
     }
+    newRows.forEach(newRow => board[newRow.index] = newRow.row)
   };
 
   const moveWordsDown = () => {
@@ -81,7 +92,6 @@ const gameState = (rows, cols) => {
 
   const moveWordLeft = () => {
     const movingWord = droppingWords[0];
-
     if (movingWord.char > 0) {
       movingWord.char -= 1;
     }
@@ -97,25 +107,7 @@ const gameState = (rows, cols) => {
 
   const addDroppingWordsToBoard = originalBoard => {
     const board = [...originalBoard];
-    droppingWords.reverse().forEach(word => {
-      if (word.orientation === 'VERTICAL') {
-        [...word.word].forEach((char, i) => {
-          if (word.row - i >= 0) {
-            const startOfRow = board[word.row - i].substring(0, word.char);
-            const endOfRow = board[word.row - i].substring(word.char + 1);
-            const newRow = startOfRow + char + endOfRow;
-            board[word.row - i] = newRow;
-          }
-        });
-      } else {
-        const startOfRow = board[word.row].substring(0, word.char);
-        const endOfRow = board[word.row].substring(
-          word.char + word.word.length
-        );
-        const newRow = startOfRow + word.word + endOfRow;
-        board[word.row] = newRow;
-      }
-    });
+    droppingWords.reverse().forEach(word => addWordToBoard(word, board));
     return board;
   };
 
