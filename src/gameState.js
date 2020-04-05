@@ -2,7 +2,7 @@ const gameState = (rows, cols) => {
   const rowWidth = cols;
   let wordBoard = [];
   wordBoard.length = rows;
-  wordBoard.fill(' '.repeat(cols))
+  wordBoard.fill(' '.repeat(cols));
 
   let droppingWords = [];
 
@@ -30,13 +30,20 @@ const gameState = (rows, cols) => {
   };
 
   const moveWordsDown = () => {
-    // this should handle checking whether the word is reaching the bottom
-    // or if there is a locked word beneath it.
-    // maybe if part of the word is on top of another word and part is not
+    // Maybe if part of the word is on top of another word and part is not
     // -> make the first part into locked word and create a new word from the latter part?
     // but what if the word would break into two new words?
     // would need to push completely new word to the array and do array shifting :S
-    droppingWords.forEach(word => (word.row += 1));
+    const newDroppingWords = [...droppingWords]
+    droppingWords.forEach((word, i) => {
+      if (isBelowWordEmpty(word, wordBoard[word.row + 1])) {
+        word.row += 1;
+      } else {
+        const wordToAddToBoard = newDroppingWords.splice(i, 1)[0];
+        addWordToBoard(wordToAddToBoard, wordBoard);
+      }
+    });
+    droppingWords = newDroppingWords;
   };
 
   const dropWord = () => {

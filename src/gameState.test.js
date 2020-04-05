@@ -54,23 +54,59 @@ describe('gameState', () => {
     ]);
   });
 
-  it('moving words down moves the dropping words down one row', () => {
-    gameState.addWord('myWord');
-    gameState.moveWordsDown();
-
-    expect(gameState.getWordBoard()).toEqual([
-      '                    ',
-      'myWord              ',
-      '                    ',
-      '                    ',
-      '                    ',
-      '                    ',
-      '                    ',
-      '                    ',
-      '                    ',
-      '                    '
-    ]);
-  });
+  describe('moving words down', () => {
+    it('moves the dropping words down one row', () => {
+      gameState.addWord('myWord');
+      gameState.moveWordsDown();
+  
+      expect(gameState.getWordBoard()).toEqual([
+        '                    ',
+        'myWord              ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    '
+      ]);
+    });
+  
+    it('moves only words that have room to drop down', () => {
+      gameState.setWordBoard([
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        'anotherWord         ',
+        'bottomWord          '
+      ], [{ word: 'FirstWord', orientation: 'VERTICAL', char: 18, row: 9 },
+      { word: 'SecondWord', orientation: 'HORIZONTAL', char: 2, row: 7 },
+      { word: 'ThirdWord', orientation: 'HORIZONTAL', char: 0, row: 3 }],)
+  
+      gameState.moveWordsDown();
+  
+      expect(gameState.getWordBoard()).toEqual([
+        '                    ',
+        '                  d ',
+        '                  r ',
+        'ThirdWord         o ',
+        '                  W ',
+        '                  t ',
+        '                  s ',
+        '  SecondWord      r ',
+        'anotherWord       i ',
+        'bottomWord        F '
+      ])
+    })
+  })
+  
+  
 
   it('adding two words in a row moves moves the first one down first', () => {
     gameState.addWord('FirstWord');
