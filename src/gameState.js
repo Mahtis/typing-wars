@@ -1,17 +1,8 @@
-
-const gameState = () => {
-  let wordBoard = [
-    '                    ',
-    '                    ',
-    '                    ',
-    '                    ',
-    '                    ',
-    '                    ',
-    '                    ',
-    '                    ',
-    '                    ',
-    '                    '
-  ];
+const gameState = (rows, cols) => {
+  const rowWidth = cols;
+  let wordBoard = [];
+  wordBoard.length = rows;
+  wordBoard.fill(' '.repeat(cols))
 
   let droppingWords = [];
 
@@ -24,19 +15,19 @@ const gameState = () => {
     if (word.orientation === 'VERTICAL') {
       [...word.word].forEach((char, i) => {
         if (word.row - i >= 0) {
-          const startOfRow = board[word.row - i].substring(0, word.char)
+          const startOfRow = board[word.row - i].substring(0, word.char);
           const endOfRow = board[word.row - i].substring(word.char + 1);
           const newRow = startOfRow + char + endOfRow;
           board[word.row - i] = newRow;
         }
-      })
+      });
     } else {
-      const startOfRow = board[word.row].substring(0, word.char)
+      const startOfRow = board[word.row].substring(0, word.char);
       const endOfRow = board[word.row].substring(word.char + word.word.length);
       const newRow = startOfRow + word.word + endOfRow;
       board[word.row] = newRow;
     }
-  }
+  };
 
   const moveWordsDown = () => {
     // this should handle checking whether the word is reaching the bottom
@@ -45,66 +36,90 @@ const gameState = () => {
     // -> make the first part into locked word and create a new word from the latter part?
     // but what if the word would break into two new words?
     // would need to push completely new word to the array and do array shifting :S
-    droppingWords.forEach(word => word.row += 1);
+    droppingWords.forEach(word => (word.row += 1));
   };
 
   const dropWord = () => {
     const droppinWord = droppingWords.shift();
-    let currentRow = droppinWord.row
-    let shouldKeepDropping = isBelowWordEmpty(droppinWord, wordBoard[currentRow + 1]);
+    let currentRow = droppinWord.row;
+    let shouldKeepDropping = isBelowWordEmpty(
+      droppinWord,
+      wordBoard[currentRow + 1]
+    );
     while (shouldKeepDropping === true) {
       currentRow += 1;
       droppinWord.row += 1;
-      shouldKeepDropping = isBelowWordEmpty(droppinWord, wordBoard[currentRow + 1]);
+      shouldKeepDropping = isBelowWordEmpty(
+        droppinWord,
+        wordBoard[currentRow + 1]
+      );
     }
-    addWordToBoard(droppinWord, wordBoard)
+    addWordToBoard(droppinWord, wordBoard);
   };
 
   const isBelowWordEmpty = (word, nextRow) => {
     // if there is no next row, we are at the bottom of the board
-    if (!nextRow) return false
-    const areaLength = word.orientation === 'HORIZONTAL' ? word.length : 1;
-    const rowArea = nextRow.slice(word.char, areaLength);
+    if (!nextRow) return false;
+    const areaLength = word.orientation === 'HORIZONTAL' ? word.word.length : 1;
+    const rowArea = nextRow.slice(word.char, word.char + areaLength);
     // check is the below area empty
-    return rowArea === (' '.repeat(rowArea.length))
-  }
+    return rowArea === ' '.repeat(rowArea.length);
+  };
 
-  const rotateWord = () => '';
+  const rotateWord = () => {
+    const rotatingWord = droppingWords[0];
+    rotatingWord.orientation =
+      rotatingWord.orientation === 'HORIZONTAL' ? 'VERTICAL' : 'HORIZONTAL';
+  };
 
-  const moveWordLeft = () => '';
+  const moveWordLeft = () => {
+    const movingWord = droppingWords[0];
 
-  const moveWordRight = () => '';
+    if (movingWord.char > 0) {
+      movingWord.char -= 1;
+    }
+  };
 
-  const addDroppingWordsToBoard = (originalBoard) => {
-    const board = [...originalBoard]
+  const moveWordRight = () => {
+    const movingWord = droppingWords[0];
+    // char + word length equals the location of the word after moving it
+    if (movingWord.char + movingWord.word.length < rowWidth) {
+      movingWord.char += 1;
+    }
+  };
+
+  const addDroppingWordsToBoard = originalBoard => {
+    const board = [...originalBoard];
     droppingWords.reverse().forEach(word => {
       if (word.orientation === 'VERTICAL') {
         [...word.word].forEach((char, i) => {
           if (word.row - i >= 0) {
-            const startOfRow = board[word.row - i].substring(0, word.char)
+            const startOfRow = board[word.row - i].substring(0, word.char);
             const endOfRow = board[word.row - i].substring(word.char + 1);
             const newRow = startOfRow + char + endOfRow;
             board[word.row - i] = newRow;
           }
-        })
+        });
       } else {
-        const startOfRow = board[word.row].substring(0, word.char)
-        const endOfRow = board[word.row].substring(word.char + word.word.length);
+        const startOfRow = board[word.row].substring(0, word.char);
+        const endOfRow = board[word.row].substring(
+          word.char + word.word.length
+        );
         const newRow = startOfRow + word.word + endOfRow;
         board[word.row] = newRow;
       }
-    })
+    });
     return board;
   };
 
   const getWordBoard = () => {
     const filledBoard = addDroppingWordsToBoard(wordBoard);
-    return filledBoard
+    return filledBoard;
   };
 
   const setWordBoard = (newBoard, newDroppingWords) => {
-    wordBoard = [...newBoard]
-    droppingWords = [...newDroppingWords]
+    wordBoard = [...newBoard];
+    droppingWords = [...newDroppingWords];
   };
 
   return {

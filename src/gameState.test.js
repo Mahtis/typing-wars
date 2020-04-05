@@ -16,8 +16,21 @@ const EMPTY_BOARD = [
 describe('gameState', () => {
   let gameState;
 
+  it('initializes a word board with given dimensions', () => {
+    gameState = _gameState(5, 10)
+
+    expect(gameState.getWordBoard()).toEqual([
+      '          ',
+      '          ',
+      '          ',
+      '          ',
+      '          '
+    ])
+  })
+  
+
   beforeEach(() => {
-    gameState = _gameState();
+    gameState = _gameState(10, 20);
   });
 
   it('initially word board is an empty 10 x 20 string array', () => {
@@ -125,6 +138,145 @@ describe('gameState', () => {
     ]);
   });
 
+  describe('rotating a word', () => {
+    beforeEach(() => {
+      gameState.setWordBoard(EMPTY_BOARD, [
+        { word: 'FirstWord', orientation: 'HORIZONTAL', char: 10, row: 6 },
+        { word: 'SecondWord', orientation: 'HORIZONTAL', char: 4, row: 4 },
+        { word: 'ThirdWord', orientation: 'HORIZONTAL', char: 0, row: 3 },
+        { word: 'FourthWord', orientation: 'HORIZONTAL', char: 0, row: 1 },
+        { word: 'FifthWord', orientation: 'HORIZONTAL', char: 0, row: 0 }
+      ]);
+      gameState.rotateWord();
+    });
+
+    it('if the first dropping word is horizontal, rotates it to vertical', () => {
+      expect(gameState.getWordBoard()).toEqual([
+        'FifthWord o         ',
+        'FourthWordW         ',
+        '          t         ',
+        'ThirdWord s         ',
+        '    Secondrord      ',
+        '          i         ',
+        '          F         ',
+        '                    ',
+        '                    ',
+        '                    '
+      ]);
+    });
+
+    it('if the first dropping word is vertical, rotates it to horizontal', () => {
+      gameState.rotateWord();
+
+      expect(gameState.getWordBoard()).toEqual([
+        'FifthWord           ',
+        'FourthWord          ',
+        '                    ',
+        'ThirdWord           ',
+        '    SecondWord      ',
+        '                    ',
+        '          FirstWord ',
+        '                    ',
+        '                    ',
+        '                    '
+      ]);
+    });
+  });
+
+  describe('moving a word right', () => {
+    beforeEach(() => {
+      gameState.setWordBoard(EMPTY_BOARD, [
+        { word: 'FirstWord', orientation: 'HORIZONTAL', char: 10, row: 6 },
+        { word: 'SecondWord', orientation: 'HORIZONTAL', char: 4, row: 4 },
+        { word: 'ThirdWord', orientation: 'HORIZONTAL', char: 0, row: 3 },
+        { word: 'FourthWord', orientation: 'HORIZONTAL', char: 0, row: 1 },
+        { word: 'FifthWord', orientation: 'HORIZONTAL', char: 0, row: 0 }
+      ]);
+
+      gameState.moveWordRight();
+    });
+
+    it('moves the first dropping word one space right', () => {
+      expect(gameState.getWordBoard()).toEqual([
+        'FifthWord           ',
+        'FourthWord          ',
+        '                    ',
+        'ThirdWord           ',
+        '    SecondWord      ',
+        '                    ',
+        '           FirstWord',
+        '                    ',
+        '                    ',
+        '                    '
+      ]);
+    });
+
+    it('does not move the first dropping word if it is already at edge', () => {
+      gameState.moveWordRight();
+
+      expect(gameState.getWordBoard()).toEqual([
+        'FifthWord           ',
+        'FourthWord          ',
+        '                    ',
+        'ThirdWord           ',
+        '    SecondWord      ',
+        '                    ',
+        '           FirstWord',
+        '                    ',
+        '                    ',
+        '                    '
+      ]);
+    });
+  });
+
+  describe('moving a word left', () => {
+    beforeEach(() => {
+      gameState.setWordBoard(EMPTY_BOARD, [
+        { word: 'FirstWord', orientation: 'HORIZONTAL', char: 10, row: 6 },
+        { word: 'SecondWord', orientation: 'HORIZONTAL', char: 4, row: 4 },
+        { word: 'ThirdWord', orientation: 'HORIZONTAL', char: 0, row: 3 },
+        { word: 'FourthWord', orientation: 'HORIZONTAL', char: 0, row: 1 },
+        { word: 'FifthWord', orientation: 'HORIZONTAL', char: 0, row: 0 }
+      ]);
+
+      gameState.moveWordLeft();
+    });
+
+    it('moves the first dropping word one space left', () => {
+      expect(gameState.getWordBoard()).toEqual([
+        'FifthWord           ',
+        'FourthWord          ',
+        '                    ',
+        'ThirdWord           ',
+        '    SecondWord      ',
+        '                    ',
+        '         FirstWord  ',
+        '                    ',
+        '                    ',
+        '                    '
+      ]);
+    });
+
+    it('does not move the first dropping word if it is already at edge', () => {
+      gameState.dropWord();
+      gameState.dropWord();
+      gameState.moveWordLeft();
+
+      expect(gameState.getWordBoard()).toEqual([
+        'FifthWord           ',
+        'FourthWord          ',
+        '                    ',
+        'ThirdWord           ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '    SecondWord      ',
+        '         FirstWord  '
+      ]);
+    });
+  });
+
   describe('dropping a word down', () => {
     beforeEach(() => {
       gameState.setWordBoard(EMPTY_BOARD, [
@@ -135,7 +287,7 @@ describe('gameState', () => {
         { word: 'FifthWord', orientation: 'HORIZONTAL', char: 0, row: 0 }
       ]);
 
-      gameState.dropWord()
+      gameState.dropWord();
     });
 
     it('drops only the lowest word down', () => {
@@ -168,6 +320,30 @@ describe('gameState', () => {
         '    SecondWord      ',
         '          FirstWord '
       ]);
-    })
+    });
+
+    it('if the word is vertical, drops correctly', () => {
+      gameState.rotateWord();
+      gameState.moveWordRight();
+      gameState.moveWordRight();
+      gameState.moveWordRight();
+      gameState.moveWordRight();
+      gameState.moveWordRight();
+      gameState.moveWordRight();
+      gameState.dropWord();
+
+      expect(gameState.getWordBoard()).toEqual([
+        'FifthWord r         ',
+        'FourthWordo         ',
+        '          W         ',
+        'ThirdWord d         ',
+        '          n         ',
+        '          o         ',
+        '          c         ',
+        '          e         ',
+        '          S         ',
+        '          FirstWord '
+      ]);
+    });
   });
 });
