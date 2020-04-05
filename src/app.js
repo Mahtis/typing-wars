@@ -1,27 +1,24 @@
-import io from 'socket.io-client'
+// import io from 'socket.io-client'
+import clientConnection from './clientConnection'
+import keyHandler from './keyHandler'
+import gameBoard from './gameBoard'
+import stringState from './stringState'
 
-const path = document.location.pathname.split('/')
-const roomPathIndex = path.findIndex(item => item === 'room')
-const room = '/' + path[roomPathIndex] + path[roomPathIndex + 1]
-const socket = io(room)
-console.log(room)
+const connection = clientConnection()
+connection.initConnection()
 
-const form = document.getElementById('form')
-const m = document.getElementById('m')
-const messages = document.getElementById('messages')
 
-form.addEventListener('submit', e => {
-  e.preventDefault()
-  console.log('hello')
-  socket.emit('msg', m.value)
-  m.value = ''
-})
+const initialWords = ['hello', 'world', 'yksi', 'kaksi', 'kolme']
 
-socket.on('msg', msg => {
-  console.log('hello hellooooo')
-  const li = document.createElement('li')
-  const text = document.createTextNode(msg)
-  li.appendChild(text)
-  messages.appendChild(li)
-})
+const socket = connection.getSocket()
+const state = stringState(initialWords, connection)
+const handler = keyHandler(state.updateString)
+
+const canvas = document.getElementById('game')
+const board = gameBoard(canvas, state);
+board.initBoard();
+
+document.addEventListener('keydown', handler.keyDownHandler)
+
+setInterval(board.draw, 20)
 
