@@ -1,4 +1,4 @@
-import _gameState from './gameState';
+import boardStateHandler from './boardStateHandler';
 
 const EMPTY_BOARD = [
   '                    ',
@@ -17,7 +17,7 @@ describe('gameState', () => {
   let gameState;
 
   it('initializes a word board with given dimensions', () => {
-    gameState = _gameState(5, 10)
+    gameState = boardStateHandler(5, 10)
 
     expect(gameState.getWordBoard()).toEqual([
       '          ',
@@ -30,7 +30,7 @@ describe('gameState', () => {
   
 
   beforeEach(() => {
-    gameState = _gameState(10, 20);
+    gameState = boardStateHandler(10, 20);
   });
 
   it('initially word board is an empty 10 x 20 string array', () => {

@@ -1,4 +1,4 @@
-const gameState = (rows, cols) => {
+const boardStateHandler = (rows, cols) => {
   const rowWidth = cols;
   let wordBoard = [];
   wordBoard.length = rows;
@@ -133,4 +133,4 @@ const gameState = (rows, cols) => {
   };
 };
 
-export default gameState;
+export default boardStateHandler;
