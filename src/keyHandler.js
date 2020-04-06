@@ -1,4 +1,3 @@
-
 export const IGNORED_KEYS = [
   'Shift',
   'Alt',
@@ -7,16 +6,21 @@ export const IGNORED_KEYS = [
   'CapsLock',
   'Dead',
   'Control'
-]
+];
 
-const keyHandler = callback => {
+export const BOARD_KEYS = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+
+const keyHandler = (typingCallback, movementCallback) => {
   const keyDownHandler = e => {
-    if (!IGNORED_KEYS.includes(e.key)) {
-      callback(e.key)
+    if (BOARD_KEYS.includes(e.key)) {
+      movementCallback(e.key);
     }
-  }
+    else if (!IGNORED_KEYS.includes(e.key)) {
+      typingCallback(e.key);
+    }
+  };
 
-  return { keyDownHandler }
-}
+  return { keyDownHandler };
+};
 
-export default keyHandler
+export default keyHandler;
