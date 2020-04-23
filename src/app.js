@@ -1,24 +1,49 @@
 // import io from 'socket.io-client'
-import clientConnection from './clientConnection'
-import keyHandler from './keyHandler'
-import gameBoard from './gameBoard'
-import stringState from './stringState'
+import clientConnection from './clientConnection';
+import keyHandler from './keyHandler';
+import gameBoard from './gameBoard';
+import stringState from './stringState';
+import boardStateHandler from './boardStateHandler';
 
-const connection = clientConnection()
-connection.initConnection()
+const FALL_SPEED = 500;
 
+const boardState = boardStateHandler(20, 20);
+const connection = clientConnection(boardState.addWord);
+connection.initConnection();
 
-const initialWords = ['hello', 'world', 'yksi', 'kaksi', 'kolme']
+const initialWords = ['hello', 'world', 'yksi', 'kaksi', 'kolme'];
 
-const socket = connection.getSocket()
-const state = stringState(initialWords, connection)
-const handler = keyHandler(state.updateString)
+const typingState = stringState(initialWords, connection);
+boardState.addWord('Moik');
+boardState.addWord('HELLOOOO');
+boardState.addWord('pöö');
+boardState.moveWordsDown();
+boardState.addWord('sanananin');
+boardState.moveWordRight();
+boardState.moveWordRight();
+boardState.moveWordRight();
+boardState.moveWordRight();
+boardState.moveWordRight();
+console.log(boardState.getWordBoard());
 
-const canvas = document.getElementById('game')
-const board = gameBoard(canvas, state);
+const handler = keyHandler(typingState.updateString, boardState);
+
+const canvas = document.getElementById('game');
+const board = gameBoard(canvas, typingState, boardState);
+connection.setOpponentBoardUpdater(board.updateOpponentBoard);
 board.initBoard();
 
-document.addEventListener('keydown', handler.keyDownHandler)
+document.addEventListener('keydown', handler.keyDownHandler);
+let lastMoveDown = Date.now();
+const gameLoop = () => {
+  const currentTime = Date.now();
+  if (currentTime >= lastMoveDown + FALL_SPEED) {
+    boardState.moveWordsDown();
+    connection.sendBoard(boardState.getWordBoard());
+    lastMoveDown = currentTime;
+  }
+  board.draw();
+};
 
-setInterval(board.draw, 20)
-
+// TODO: set this lower when boardState is updated to work better
+setInterval(gameLoop, 40);
