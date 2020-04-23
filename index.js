@@ -38,8 +38,13 @@ io.on('connection', socket => {
     })
     socket.on('msg', msg => {
       console.log(msg)
-      socket.emit('msg', 'PRIVAVIESTI ' + msg)
+      // socket.emit menee lähettäjälle itselle pelkästään
+      // socket.emit('msg', 'PRIVAVIESTI ' + msg)
       socket.to(room).emit('msg', msg)
+    })
+
+    socket.on('board', board => {
+      socket.to(room).emit('board', board)
     })
   })
 })
