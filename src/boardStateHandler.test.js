@@ -37,22 +37,103 @@ describe('gameState', () => {
     expect(gameState.getWordBoard()).toEqual(EMPTY_BOARD);
   });
 
-  it('adding a new word spawns it at the top of the board', () => {
-    gameState.addWord('word');
+  describe('adding a new word', () => {
+    it('spawns it at the top of the board', () => {
+      gameState.addWord('word');
+  
+      expect(gameState.getWordBoard()).toEqual([
+        'word                ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    '
+      ]);
+    });
 
-    expect(gameState.getWordBoard()).toEqual([
-      'word                ',
-      '                    ',
-      '                    ',
-      '                    ',
-      '                    ',
-      '                    ',
-      '                    ',
-      '                    ',
-      '                    ',
-      '                    '
-    ]);
-  });
+    it('if the word is the only word on board, it becomes the active word, i.e. moving word right moves it right', () => {
+      gameState.addWord('word');
+      gameState.moveWordRight();
+  
+      expect(gameState.getWordBoard()).toEqual([
+        ' word               ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    '
+      ]);
+    });
+
+    it('if the word is not the only word on board, moving word right does not move the added word right', () => {
+      gameState.addWord('first');
+      gameState.addWord('second');
+      gameState.moveWordRight();
+  
+      expect(gameState.getWordBoard()).toEqual([
+        'second              ',
+        ' first              ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    '
+      ]);
+    });
+  
+    it('adding two words in a row moves moves the first one down first', () => {
+      gameState.addWord('FirstWord');
+      gameState.addWord('SecondWord');
+  
+      expect(gameState.getWordBoard()).toEqual([
+        'SecondWord          ',
+        'FirstWord           ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    '
+      ]);
+    });
+  
+    it('all words not at the bottom move down a row when a new word is added', () => {
+      gameState.setWordBoard(EMPTY_BOARD, [
+        { word: 'FirstWord', orientation: 'HORIZONTAL', char: 10, row: 6 },
+        { word: 'SecondWord', orientation: 'HORIZONTAL', char: 4, row: 4 },
+        { word: 'ThirdWord', orientation: 'HORIZONTAL', char: 0, row: 3 },
+        { word: 'FourthWord', orientation: 'HORIZONTAL', char: 0, row: 1 },
+        { word: 'FifthWord', orientation: 'HORIZONTAL', char: 0, row: 0 }
+      ]);
+      gameState.addWord('SixthWord');
+  
+      expect(gameState.getWordBoard()).toEqual([
+        'SixthWord           ',
+        'FifthWord           ',
+        'FourthWord          ',
+        '                    ',
+        'ThirdWord           ',
+        '    SecondWord      ',
+        '                    ',
+        '          FirstWord ',
+        '                    ',
+        '                    '
+      ]);
+    });
+  })
 
   describe('moving words down', () => {
     it('moves the dropping words down one row', () => {
@@ -92,63 +173,45 @@ describe('gameState', () => {
       gameState.moveWordsDown();
   
       expect(gameState.getWordBoard()).toEqual([
-        '                    ',
-        '                  d ',
-        '                  r ',
-        'ThirdWord         o ',
-        '                  W ',
-        '                  t ',
-        '                  s ',
-        '  SecondWord      r ',
-        'anotherWord       i ',
-        'bottomWord        F '
+        '                    ', // 0
+        '                  d ', // 1
+        '                  r ', // 2
+        '                  o ', // 3
+        'ThirdWord         W ', // 4
+        '                  t ', // 5
+        '                  s ', // 6
+        '  SecondWord      r ', // 7
+        'anotherWord       i ', // 8
+        'bottomWord        F ' // 9
       ])
     })
+
+    it('all words not at the bottom move down a row when a new word is added', () => {
+      gameState.setWordBoard(EMPTY_BOARD, [
+        { word: 'FirstWord', orientation: 'HORIZONTAL', char: 10, row: 9 },
+        { word: 'SecondWord', orientation: 'HORIZONTAL', char: 4, row: 8 },
+        { word: 'ThirdWord', orientation: 'HORIZONTAL', char: 0, row: 7 },
+        { word: 'FourthWord', orientation: 'HORIZONTAL', char: 0, row: 3 },
+        { word: 'FifthWord', orientation: 'HORIZONTAL', char: 0, row: 2 }
+      ]);
+      gameState.moveWordsDown();
+      gameState.moveWordsDown();
+      gameState.moveWordsDown();
+  
+      expect(gameState.getWordBoard()).toEqual([
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        'FifthWord           ',
+        'FourthWord          ',
+        'ThirdWord           ',
+        '    SecondWord      ',
+        '          FirstWord '
+      ]);
+    });
   })
-  
-  
-
-  it('adding two words in a row moves moves the first one down first', () => {
-    gameState.addWord('FirstWord');
-    gameState.addWord('SecondWord');
-
-    expect(gameState.getWordBoard()).toEqual([
-      'SecondWord          ',
-      'FirstWord           ',
-      '                    ',
-      '                    ',
-      '                    ',
-      '                    ',
-      '                    ',
-      '                    ',
-      '                    ',
-      '                    '
-    ]);
-  });
-
-  it('all words not at the bottom move down a row when a new word is added', () => {
-    gameState.setWordBoard(EMPTY_BOARD, [
-      { word: 'FirstWord', orientation: 'HORIZONTAL', char: 10, row: 6 },
-      { word: 'SecondWord', orientation: 'HORIZONTAL', char: 4, row: 4 },
-      { word: 'ThirdWord', orientation: 'HORIZONTAL', char: 0, row: 3 },
-      { word: 'FourthWord', orientation: 'HORIZONTAL', char: 0, row: 1 },
-      { word: 'FifthWord', orientation: 'HORIZONTAL', char: 0, row: 0 }
-    ]);
-    gameState.addWord('SixthWord');
-
-    expect(gameState.getWordBoard()).toEqual([
-      'SixthWord           ',
-      'FifthWord           ',
-      'FourthWord          ',
-      '                    ',
-      'ThirdWord           ',
-      '    SecondWord      ',
-      '                    ',
-      '          FirstWord ',
-      '                    ',
-      '                    '
-    ]);
-  });
 
   it('a vertical word is drawn correctly and over all other words above', () => {
     gameState.setWordBoard(EMPTY_BOARD, [
