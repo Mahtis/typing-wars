@@ -59,9 +59,8 @@ const gameBoard = (canvas, stringState, boardStateHandler) => {
     ctx.font = "30px Arial"
     ctx.fillText(stringState.getCurrentString(), 400, 400)
     ctx.font = "16px Arial"
-    stringState.getWordList().forEach((word, i) => {
-      ctx.fillText(word, 400 + i * 50, 500)
-    })
+    const wordString = stringState.getWordList().reverse().join(' ')
+    ctx.fillText(wordString, 400, 500)
   }
   
   const draw = () => {

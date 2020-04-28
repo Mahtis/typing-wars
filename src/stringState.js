@@ -8,6 +8,7 @@ const TERMINATORS = ['Enter', ' '];
 const stringState = (initialWords, connection) => {
   let currentString = '';
   const wordList = initialWords;
+  
   const completedWords = [];
 
   const updateString = key => {
@@ -28,7 +29,7 @@ const stringState = (initialWords, connection) => {
 
   const getCurrentString = () => currentString;
 
-  const getWordList = () => wordList;
+  const getWordList = () => [...wordList];
 
   const getCompletedWords = () => completedWords;
 
