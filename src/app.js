@@ -7,9 +7,11 @@ import boardStateHandler from './boardStateHandler';
 import { fetchWords } from './dataProvider';
 
 const FALL_SPEED = 500;
+const BOARD_ROWS = 40;
+const BOARD_COLS = 30;
 
 const startGame = async () => {
-const boardState = boardStateHandler(50, 20);
+const boardState = boardStateHandler(BOARD_ROWS, BOARD_COLS);
 const connection = clientConnection(boardState.addWord);
 connection.initConnection();
 const words = await fetchWords()
