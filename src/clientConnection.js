@@ -1,10 +1,9 @@
 import _io from 'socket.io-client';
+import { BACKEND_URL } from './util';
 
 export const dependencies = {
   io: _io
 };
-
-const { BACKEND_URL } = process.env;
 
 const clientConnection = addWord => {
   let socket;
