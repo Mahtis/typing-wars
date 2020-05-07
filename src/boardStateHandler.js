@@ -1,3 +1,12 @@
+// Creates an array from to, including to
+// To make things confusing, it cuts out negative values
+// becuase in this case those are outside the board (i.e. above it)
+const range = (from, to) =>
+  Array(to + 1 - from)
+    .fill(from)
+    .map((fromValue, i) => fromValue + i)
+    .filter((value) => value >= 0);
+
 const boardStateHandler = (rows, cols) => {
   const rowWidth = cols;
   let wordBoard = [];
@@ -6,7 +15,7 @@ const boardStateHandler = (rows, cols) => {
 
   let droppingWords = [];
 
-  const addWord = word => {
+  const addWord = (word) => {
     const newWord = {
       word,
       orientation: 'HORIZONTAL',
@@ -18,13 +27,15 @@ const boardStateHandler = (rows, cols) => {
   };
 
   const getActiveWord = () => {
-    return droppingWords[0]
-  }
+    return droppingWords[0];
+  };
 
-  const removeWordFromDroppingWords = removableWord => {
-    const removeIndex = droppingWords.findIndex(word => word === removableWord);
+  const removeWordFromDroppingWords = (removableWord) => {
+    const removeIndex = droppingWords.findIndex(
+      (word) => word === removableWord
+    );
     droppingWords.splice(removeIndex, 1);
-  }
+  };
 
   const createNewRowForWord = (word, pos, row) => {
     const startOfRow = row.substring(0, pos);
@@ -41,7 +52,7 @@ const boardStateHandler = (rows, cols) => {
         return { index: currentRow, row: newRow };
       }
     });
-    return rows.filter(row => row !== undefined);
+    return rows.filter((row) => row !== undefined);
   };
 
   // Name this createRowsForBoard
@@ -54,7 +65,7 @@ const boardStateHandler = (rows, cols) => {
       newRows.push({ index: word.row, row: newRow });
     }
     // TODO: Just return the newRows, let caller handle the rest
-    newRows.forEach(newRow => (board[newRow.index] = newRow.row));
+    newRows.forEach((newRow) => (board[newRow.index] = newRow.row));
   };
 
   // TODO: update boards through this and return the newBoard
@@ -64,7 +75,7 @@ const boardStateHandler = (rows, cols) => {
   };
 
   // TODO: Dont know if this is necessary, but maybe
-  const updateWordBoard = board => {
+  const updateWordBoard = (board) => {
     return true;
   };
 
@@ -84,15 +95,6 @@ const boardStateHandler = (rows, cols) => {
         addWordToBoard(wordToAddToBoard, wordBoard);
       }
     }
-    // droppingWords.forEach((word, i) => {
-    //   if (isBelowWordEmpty(word, wordBoard[word.row + 1])) {
-    //     word.row += 1;
-    //     newDroppingWords.push(word)
-    //   } else {
-    //     const wordToAddToBoard = droppingWords[i];
-    //     addWordToBoard(wordToAddToBoard, wordBoard);
-    //   }
-    // });
 
     droppingWords = newDroppingWords;
   };
@@ -112,7 +114,7 @@ const boardStateHandler = (rows, cols) => {
         wordBoard[currentRow + 1]
       );
     }
-    removeWordFromDroppingWords(droppingWord)
+    removeWordFromDroppingWords(droppingWord);
     addWordToBoard(droppingWord, wordBoard);
   };
 
@@ -128,30 +130,70 @@ const boardStateHandler = (rows, cols) => {
     return rowArea === ' '.repeat(rowArea.length);
   };
 
+  // checks whether given columns on specified rows is empty
+  const isSpotFree = (chars, rows) =>
+    rows.every((row) =>
+      chars.every(
+        (char) =>
+          wordBoard[row][char] === ' ' &&
+          wordBoard[row][char] >= 0 &&
+          wordBoard[row][char] <= rowWidth
+      )
+    );
+
   const rotateWord = () => {
     const rotatingWord = getActiveWord();
-    rotatingWord.orientation =
-      rotatingWord.orientation === 'HORIZONTAL' ? 'VERTICAL' : 'HORIZONTAL';
+
+    if (rotatingWord.orientation === 'VERTICAL') {
+      rotateVerticalWord(rotatingWord);
+    } else {
+      rotatingWord.orientation = 'VERTICAL';
+    }
+  };
+
+  // Considers whether there is something on the right side of the word
+  // so that it would not fit there horizontally and does not rotate it if so
+  const rotateVerticalWord = (word) => {
+    const cols = range(word.char, word.char + word.word.length - 1);
+    if (isSpotFree(cols, [word.row])) {
+      word.orientation = 'HORIZONTAL';
+    }
   };
 
   const moveWordLeft = () => {
     const movingWord = getActiveWord();
-    if (movingWord.char > 0) {
+
+    const charAfterMoving = movingWord.char - 1;
+
+    if (isSpotFree([charAfterMoving], [movingWord.row])) {
       movingWord.char -= 1;
     }
   };
 
   const moveWordRight = () => {
     const movingWord = getActiveWord();
-    // char + word length equals the location of the word after moving it
-    if (movingWord.char + movingWord.word.length < rowWidth) {
-      movingWord.char += 1;
+
+    if (movingWord.orientation === 'VERTICAL') {
+      const charAfterMoving = movingWord.char + 1;
+      const rows = range(
+        movingWord.row - movingWord.word.length,
+        movingWord.row
+      );
+      if (isSpotFree([charAfterMoving], rows)) {
+        movingWord.char += 1;
+      }
+    } else {
+      // char + word length equals the location of the word after moving it
+      const charAfterMoving = movingWord.char + movingWord.word.length;
+      if (isSpotFree([charAfterMoving], [movingWord.row])) {
+        movingWord.char += 1;
+      }
     }
   };
 
-  const addDroppingWordsToBoard = originalBoard => {
+  const addDroppingWordsToBoard = (originalBoard) => {
     const board = [...originalBoard];
-    [...droppingWords].reverse().forEach(word => addWordToBoard(word, board));
+    [...droppingWords].reverse().forEach((word) => addWordToBoard(word, board));
     return board;
   };
 
@@ -173,7 +215,7 @@ const boardStateHandler = (rows, cols) => {
     moveWordLeft,
     moveWordRight,
     rotateWord,
-    dropWord
+    dropWord,
   };
 };
 
