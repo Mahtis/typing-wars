@@ -1,0 +1,9 @@
+version: '3.4'
+
+services:
+  server:
+    image: mahtis/typing-wars
+    restart: unless-stopped
+    container_name: typing-wars
+    ports:
+      - "7000:3000"

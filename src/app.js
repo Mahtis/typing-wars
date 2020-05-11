@@ -1,4 +1,3 @@
-// import io from 'socket.io-client'
 import clientConnection from './clientConnection';
 import keyHandler from './keyHandler';
 import gameBoard from './gameBoard';
