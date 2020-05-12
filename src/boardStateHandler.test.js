@@ -15,6 +15,7 @@ const EMPTY_BOARD = [
 
 describe('gameState', () => {
   let gameState;
+  let endMatchMock;
 
   it('initializes a word board with given dimensions', () => {
     gameState = boardStateHandler(5, 10);
@@ -29,7 +30,9 @@ describe('gameState', () => {
   });
 
   beforeEach(() => {
-    gameState = boardStateHandler(10, 20);
+    endMatchMock = jest.fn();
+
+    gameState = boardStateHandler(10, 20, endMatchMock, 3);
   });
 
   it('initially word board is an empty 10 x 20 string array', () => {
@@ -288,7 +291,6 @@ describe('gameState', () => {
     it('if the active word is vertical and at the right edge of the board, does not rotate it', () => {
       gameState.setWordBoard(EMPTY_BOARD, [
         { word: 'FirstWord', orientation: 'VERTICAL', char: 19, row: 6 },
-
       ]);
 
       gameState.rotateWord();
@@ -308,21 +310,21 @@ describe('gameState', () => {
     });
 
     it('if the active word is vertical and on the right side there is a word that it would intercept if rotated, does not rotate it', () => {
-      gameState.setWordBoard([
-        '                    ',
-        '                    ',
-        '                    ',
-        '                    ',
-        '                    ',
-        '     Y              ',
-        '     Y              ',
-        '     Y              ',
-        '     Y              ',
-        '     Y              ',
-      ], [
-        { word: 'XXX', orientation: 'VERTICAL', char: 3, row: 6 },
-
-      ]);
+      gameState.setWordBoard(
+        [
+          '                    ',
+          '                    ',
+          '                    ',
+          '                    ',
+          '                    ',
+          '     Y              ',
+          '     Y              ',
+          '     Y              ',
+          '     Y              ',
+          '     Y              ',
+        ],
+        [{ word: 'XXX', orientation: 'VERTICAL', char: 3, row: 6 }]
+      );
 
       gameState.rotateWord();
 
@@ -418,9 +420,7 @@ describe('gameState', () => {
           '                    ',
           '      wordOnRight   ',
         ],
-        [
-          { word: 'XX', orientation: 'HORIZONTAL', char: 4, row: 9 }
-        ]
+        [{ word: 'XX', orientation: 'HORIZONTAL', char: 4, row: 9 }]
       );
 
       gameState.moveWordRight();
@@ -436,7 +436,7 @@ describe('gameState', () => {
         '                    ',
         '                    ',
         '    XXwordOnRight   ',
-      ])
+      ]);
     });
 
     it('does not move a vertical active word right if there is a blocking word on the right side', () => {
@@ -453,9 +453,7 @@ describe('gameState', () => {
           ' YYYYYYYYY          ',
           '      YYY           ',
         ],
-        [
-          { word: 'XX', orientation: 'VERTICAL', char: 0, row: 9 }
-        ]
+        [{ word: 'XX', orientation: 'VERTICAL', char: 0, row: 9 }]
       );
 
       gameState.moveWordRight();
@@ -471,7 +469,7 @@ describe('gameState', () => {
         '                    ',
         'XYYYYYYYYY          ',
         'X     YYY           ',
-      ])
+      ]);
     });
   });
 
@@ -536,9 +534,7 @@ describe('gameState', () => {
           '                    ',
           ' wordOnLeft         ',
         ],
-        [
-          { word: 'XX', orientation: 'HORIZONTAL', char: 11, row: 9 }
-        ]
+        [{ word: 'XX', orientation: 'HORIZONTAL', char: 11, row: 9 }]
       );
 
       gameState.moveWordLeft();
@@ -554,7 +550,7 @@ describe('gameState', () => {
         '                    ',
         '                    ',
         ' wordOnLeftXX       ',
-      ])
+      ]);
     });
   });
 
@@ -625,6 +621,55 @@ describe('gameState', () => {
         '          S         ',
         '          FirstWord ',
       ]);
+    });
+  });
+
+  describe('match end row', () => {
+    describe('given a dropping word is at the match ending row', () => {
+      beforeEach(() => {
+        gameState.setWordBoard(
+          [
+            '                    ',
+            '                    ',
+            '                    ',
+            '                    ',
+            'YYY                 ',
+            'YYY                 ',
+            'YYY                 ',
+            'YYYYY               ',
+            ' YYYYYYYYY          ',
+            '      YYY           ',
+          ],
+          [
+            { word: 'LongWord', orientation: 'HORIZONTAL', char: 10, row: 4 },
+            { word: 'XX', orientation: 'HORIZONTAL', char: 0, row: 3 }
+          ]
+        );
+      });
+
+      it('does not call the match end function', () => {
+        expect(endMatchMock).not.toHaveBeenCalled();
+      });
+
+      it('if the word turns from dropping to stationary, calls the match end function', () => {
+        gameState.moveWordsDown();
+
+        expect(endMatchMock).toHaveBeenCalled();
+      });
+
+      it('if a word is dropped and that puts it above the match end row, calls the match end function', () => {
+        gameState.dropWord();
+        gameState.dropWord();
+
+        expect(endMatchMock).toHaveBeenCalled();
+      });
+
+      it('if a word is vertical and any part of it is above the match end row, calls the match end function', () => {
+        gameState.rotateWord();
+        gameState.dropWord();
+
+        expect(endMatchMock).toHaveBeenCalled();
+      });
     });
   });
 });

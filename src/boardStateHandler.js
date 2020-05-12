@@ -7,7 +7,7 @@ const range = (from, to) =>
     .map((fromValue, i) => fromValue + i)
     .filter((value) => value >= 0);
 
-const boardStateHandler = (rows, cols) => {
+const boardStateHandler = (rows, cols, endMatchCallback, matchEndrow = 0) => {
   const rowWidth = cols;
   let wordBoard = [];
   wordBoard.length = rows;
@@ -79,6 +79,14 @@ const boardStateHandler = (rows, cols) => {
     return true;
   };
 
+  const checkWordEndsGame = word => {
+    if (word.orientation === 'HORIZONTAL') {
+      return word.row <= matchEndrow;
+    }
+    // Vertical word reaches (row - length + 1) rows above current row
+    return word.row - word.word.length + 1 <= matchEndrow;
+  }
+
   const moveWordsDown = () => {
     // Maybe if part of the word is on top of another word and part is not
     // -> make the first part into locked word and create a new word from the latter part?
@@ -92,6 +100,9 @@ const boardStateHandler = (rows, cols) => {
         newDroppingWords.push(word);
       } else {
         const wordToAddToBoard = droppingWords[i];
+        if (checkWordEndsGame(wordToAddToBoard)) {
+          endMatchCallback();
+        }
         addWordToBoard(wordToAddToBoard, wordBoard);
       }
     }
@@ -113,6 +124,9 @@ const boardStateHandler = (rows, cols) => {
         droppingWord,
         wordBoard[currentRow + 1]
       );
+    }
+    if (checkWordEndsGame(droppingWord)) {
+      endMatchCallback();
     }
     removeWordFromDroppingWords(droppingWord);
     addWordToBoard(droppingWord, wordBoard);
