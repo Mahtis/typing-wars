@@ -55,6 +55,33 @@ describe('clientConnection', () => {
       })
     })
 
+    it('given readying up, emits ready message', () => {
+      connection.sendReady('some-message');
+
+      expect(socketMock.emit).toHaveBeenCalledWith('ready', 'some-message');
+    })
+    
+    describe('checking if opponent is connected', () => {
+      it('initially opponent is not connected', () => {
+        const opponentConnected = connection.isOpponentConnected();
+  
+        expect(opponentConnected).toBe(false);
+      })
+      
+      // should test that if 'joinroom' msg is emitted with 2, returns true 
+    })
+
+    it('when game is lost, send lose message ', () => {
+        connection.sendGameStatus('lost');
+
+        expect(socketMock.emit).toHaveBeenCalledWith('status', 'lost');
+    });
+    
+
+
+
+    
+    
     // TODO: Invent a way to test that socket.on() works,
     // or should it be abstracted even further?
   });

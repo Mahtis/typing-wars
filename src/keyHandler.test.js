@@ -7,8 +7,13 @@ describe('keyHandler', () => {
 
   beforeEach(() => {
     typingHandlerMock = jest.fn();
-    boardMovementHandlerStub = { rotateWord: jest.fn(), moveWordLeft: jest.fn(), moveWordRight: jest.fn(), dropWord: jest.fn() };
-    handler = keyHandler(typingHandlerMock, boardMovementHandlerStub);
+    boardMovementHandlerStub = {
+      rotateWord: jest.fn(),
+      moveWordLeft: jest.fn(),
+      moveWordRight: jest.fn(),
+      dropWord: jest.fn()
+    };
+    handler = keyHandler();
   });
 
   describe('given a typing key is pressed', () => {
@@ -17,7 +22,10 @@ describe('keyHandler', () => {
     beforeEach(() => {
       typingEventStub = { key: 'A' };
 
-      handler.keyDownHandler(typingEventStub);
+      handler.gameKeyHandler(
+        typingHandlerMock,
+        boardMovementHandlerStub
+      )(typingEventStub);
     });
 
     it('calls pressed key correctly', () => {
@@ -33,7 +41,12 @@ describe('keyHandler', () => {
   });
 
   it('ignores modifier keys', () => {
-    IGNORED_KEYS.forEach(key => handler.keyDownHandler({ key }));
+    IGNORED_KEYS.forEach(key =>
+      handler.gameKeyHandler(
+        typingHandlerMock,
+        boardMovementHandlerStub
+      )({ key })
+    );
 
     expect(typingHandlerMock).not.toHaveBeenCalled();
     expect(boardMovementHandlerStub.rotateWord).not.toHaveBeenCalled();
@@ -47,8 +60,13 @@ describe('keyHandler', () => {
     let leftStub;
     let rightStub;
     let dropStub;
+    let gameKeyListener;
 
     beforeEach(() => {
+      gameKeyListener = handler.gameKeyHandler(
+        typingHandlerMock,
+        boardMovementHandlerStub
+      );
       rotateStub = { key: 'ArrowUp' };
       leftStub = { key: 'ArrowLeft' };
       rightStub = { key: 'ArrowRight' };
@@ -56,34 +74,34 @@ describe('keyHandler', () => {
     });
 
     it('if event is up arrow, calls word rotation', () => {
-      handler.keyDownHandler(rotateStub);
+      gameKeyListener(rotateStub);
 
       expect(boardMovementHandlerStub.rotateWord).toHaveBeenCalled();
     });
 
     it('if event is right arrow, calls moving word right', () => {
-      handler.keyDownHandler(rightStub);
+      gameKeyListener(rightStub);
 
       expect(boardMovementHandlerStub.moveWordRight).toHaveBeenCalled();
     });
 
     it('if event is left arrow, calls moving word left', () => {
-      handler.keyDownHandler(leftStub);
+      gameKeyListener(leftStub);
 
       expect(boardMovementHandlerStub.moveWordLeft).toHaveBeenCalled();
     });
 
     it('if event is down arrow, calls word drop', () => {
-      handler.keyDownHandler(dropStub);
+      gameKeyListener(dropStub);
 
       expect(boardMovementHandlerStub.dropWord).toHaveBeenCalled();
     });
 
     it('does not call the string match handler', () => {
-      handler.keyDownHandler(rotateStub);
-      handler.keyDownHandler(rightStub);
-      handler.keyDownHandler(leftStub);
-      handler.keyDownHandler(dropStub);
+      gameKeyListener(rotateStub);
+      gameKeyListener(rightStub);
+      gameKeyListener(leftStub);
+      gameKeyListener(dropStub);
 
       expect(typingHandlerMock).not.toHaveBeenCalled();
     });
@@ -100,4 +118,35 @@ describe('keyHandler', () => {
       'Control'
     ]);
   });
+
+  describe('given readying key handler is used', () => {
+    let readyKeyListener;
+    let readyKeyCallbackMock;
+
+    beforeEach(() => {
+      readyKeyCallbackMock = jest.fn();
+
+      readyKeyListener = handler.readyKeyHandler(readyKeyCallbackMock);
+    });
+
+    it('when enter is pressed, calls the ready callback', () => {
+      readyKeyListener({ key: 'Enter' });
+
+      expect(readyKeyCallbackMock).toHaveBeenCalled();
+    })
+
+    it('when space is pressed, calls the ready callback', () => {
+      readyKeyListener({ key: ' ' });
+
+      expect(readyKeyCallbackMock).toHaveBeenCalled();
+    })
+
+    it('when an unspecified kay is pressed, does not calls the ready callback', () => {
+      readyKeyListener({ key: 'F' });
+
+      expect(readyKeyCallbackMock).not.toHaveBeenCalled();
+    })
+    
+  })
+  
 });
