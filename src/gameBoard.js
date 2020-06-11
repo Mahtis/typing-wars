@@ -91,10 +91,18 @@ const gameBoard = (canvas, stringState, boardStateHandler) => {
     drawText(ctx);
   };
 
+  const drawMatchEndScreen = result => {
+    const ctx = canvas.getContext('2d');
+    ctx.font = '30px Arial';
+    ctx.fillText('YOU ' + result, 500, 300);
+    ctx.font = '16px Arial';
+  }
+
   return {
     initBoard,
     updateOpponentBoard,
     draw,
+    drawMatchEndScreen
   };
 };
 
