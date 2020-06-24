@@ -14,25 +14,39 @@
     </style>
   </head>
   <body>
-    <ul id="messages"></ul>
-    <form action="">
-      <input id="m" autocomplete="off" /><button>Send</button>
-    </form>
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <table>
+      <thead>
+      <tr>
+        <th>
+          Something
+        </th>
+        <th>
+          Something
+        </th>
+        <th>
+          Something
+        </th>
+      </tr>
+    </thead>
+    <tbody id="tbody">
+      <tr>
+        <td>room name</td>
+        <td>1/2</td>
+        <td><button>join</button></td>
+      </tr>
+    </tbody>
+    </table>
     <script>
-      $(function () {
-        var socket = io();
-        $('form').submit(function(e){
-          e.preventDefault(); // prevents page reloading
-          socket.emit('chat message', $('#m').val());
-          $('#m').val('');
-          return false;
-        });
-        socket.on('chat message', function(msg){
-          $('#messages').append($('<li>').text(msg));
-        });
-      });
+      const tbody = document.getElementById('tbody');
+
+      const td = document.createElement('td');
+      const text = document.createTextNode('5/5');
+      td.appendChild(text);
+      
+      const tr = document.createElement('tr');
+      tr.appendChild(td);
+
+      tbody.appendChild(tr);
     </script>
   </body>
 </html>

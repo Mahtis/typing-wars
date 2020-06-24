@@ -1,0 +1,20 @@
+doctype html
+html
+   head
+      title Typing wars
+   body
+      h1 Welcome to the Typing wars
+      a(href='https://www.google.com') Google
+      table
+        thead
+          tr
+            th Room name
+            th Players
+            th Join game
+        tbody
+          each room in rooms
+            tr
+              td= room.name
+              td= room.players
+              td
+                a.button(href=room.link) Join

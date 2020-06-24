@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const _io = require('socket.io');
 const http = require('http');
@@ -8,11 +9,17 @@ const app = express();
 const server = http.createServer(app);
 const io = _io(server);
 
-const rooms = ['room1', 'room2', 'room3', 'room4', 'room5'];
+app.set('view engine', 'pug');
+app.set('views','./views');
 
 const apiService = require('./apiService').apiService();
+const BASE_URL = process.env.BACKEND_URL;
 
 app.use(cors());
+
+app.use(express.static('dist'));
+
+let existingRooms = ['room1', 'top_room', 'gangsta'];
 
 app.get('/asd', (req, res) => {
   io.in('/room/1').clients((error, clients) => {
@@ -20,11 +27,39 @@ app.get('/asd', (req, res) => {
   });
 });
 
-app.use('/', express.static(__dirname + '/dist', { index: 'room.html' }));
+app.get('/', (req, res) => {
+  const rooms = io.sockets.adapter.rooms
+  const acualRooms = existingRooms.map(room => {
+    return {
+      name: room,
+      players: rooms[room] ? rooms[room].length : 0,
+      link: BASE_URL + '/room/' + room  
+    }
+  })
+  // const acualRooms = Object.keys(rooms).filter(key => existingRooms.has(key)).map(room => {
+  //   return {
+  //   name: room,
+  //   players: rooms[room].length,
+  //   link: BASE_URL + '/room/' + room
+  // }})
+  res.render('index', {
+    rooms: acualRooms
+  });
+});
 
-app.use(
+// app.get('/room/:room', (req, res) => {
+//   res.render('room')
+// })
+
+app.get(
   '/room/:room',
-  express.static(__dirname + '/dist', { index: 'room.html' })
+  (req,res) => {
+    if (existingRooms.includes(req.params.room)) {
+      res.sendFile(__dirname + '/dist/room.html')
+    } else {
+      res.redirect('/')
+    }
+  }
 );
 
 app.get('/api/words', (req, res) => {
