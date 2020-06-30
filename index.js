@@ -36,20 +36,10 @@ app.get('/', (req, res) => {
       link: BASE_URL + '/room/' + room  
     }
   })
-  // const acualRooms = Object.keys(rooms).filter(key => existingRooms.has(key)).map(room => {
-  //   return {
-  //   name: room,
-  //   players: rooms[room].length,
-  //   link: BASE_URL + '/room/' + room
-  // }})
   res.render('index', {
     rooms: acualRooms
   });
 });
-
-// app.get('/room/:room', (req, res) => {
-//   res.render('room')
-// })
 
 app.get(
   '/room/:room',
@@ -112,22 +102,6 @@ io.on('connection', socket => {
     })
   });
 });
-// rooms.forEach(room => {
-//   const roomNamespace = io.of(room);
-//   roomNamespace.on('connection', socket => {
-//     roomNamespace.clients((error, clients) => {
-//       console.log(clients)
-//       if (clients.length > 2) {
-//         socket.disconnect(true)
-//       }
-//     })
-//     socket.on('msg', msg => {
-//       console.log(msg)
-//       socket.emit('msg', 'PRIVAVIESTI ' + msg)
-//       roomNamespace.emit('msg', msg)
-//     })
-//   })
-// })
 
 server.listen(PORT, () =>
   console.log(
