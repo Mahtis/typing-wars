@@ -4,11 +4,13 @@ describe('stringState', () => {
   let state;
   let wordlistStub;
   let connectionStub;
+  let scoreUpdateStub;
 
   beforeEach(() => {
     wordlistStub = ['eka', 'toka', 'kolmas'];
     connectionStub = { sendMessage: jest.fn() }
-    state = stringState(wordlistStub, connectionStub);
+    scoreUpdateStub = jest.fn();
+    state = stringState(wordlistStub, connectionStub, scoreUpdateStub);
   });
 
   it('updates current string correctly', () => {
@@ -33,6 +35,9 @@ describe('stringState', () => {
         expect(connectionStub.sendMessage).not.toHaveBeenCalled();
       })
       
+      it('calls for score update with false', () => {
+        expect(scoreUpdateStub).toHaveBeenCalledWith(false)
+      })
     })
 
     describe('if the current string matches last word on the list', () => {
@@ -54,7 +59,10 @@ describe('stringState', () => {
       it('sends a message of word completion', () => {
         expect(connectionStub.sendMessage).toHaveBeenCalledWith('kolmas');
       })
-      
+
+      it('calls for score update with true and the word', () => {
+        expect(scoreUpdateStub).toHaveBeenCalledWith(true, 'kolmas')
+      })      
     })
 
     it('if the key is space, sets string back to empty', () => {

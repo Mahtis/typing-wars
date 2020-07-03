@@ -5,7 +5,7 @@ const TERMINATORS = ['Enter', ' '];
 // when string matches, send the name of set and actual word
 // instead of socket, use clientConnection and add there necessary functions
 
-const stringState = (initialWords, connection) => {
+const stringState = (initialWords, connection, scoreUpdater) => {
   let currentString = '';
   const wordList = initialWords;
   
@@ -17,7 +17,11 @@ const stringState = (initialWords, connection) => {
         const completedWord = wordList.pop();
         completedWords.push(completedWord);
         connection.sendMessage(completedWord);
+        scoreUpdater(true, currentString);
+      } else {
+        scoreUpdater(false);
       }
+
       currentString = '';
     } else if (key === 'Backspace') {
       currentString = currentString.slice(0, -1);

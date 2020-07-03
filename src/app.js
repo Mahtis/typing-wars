@@ -1,11 +1,13 @@
 import clientConnection from './clientConnection';
 import keyHandler from './keyHandler';
 import gameBoard from './gameBoard';
+import scoreTracker from './scoreTracker';
 import stringState from './stringState';
 import boardStateHandler from './boardStateHandler';
 import { fetchWords } from './dataProvider';
 import startSequenceDrawer from './drawing/startSequenceDrawer';
 import readyingDrawer from './drawing/readyingDrawer';
+import _scoreDrawer from './drawing/scoreDrawer';
 
 const FALL_SPEED = 500;
 const BOARD_ROWS = 40;
@@ -43,7 +45,8 @@ const startGame = async () => {
   connection.initConnection();
   const words = await fetchWords();
 
-  const typingState = stringState(words, connection);
+  const score = scoreTracker();
+  const typingState = stringState(words, connection, score.updateScore);
 
   const handler = keyHandler();
 
@@ -58,6 +61,7 @@ const startGame = async () => {
   );
 
   const readyDrawer = readyingDrawer(canvas.getContext('2d'));
+  const scoreDrawer = _scoreDrawer(canvas.getContext('2d'), score);
   
   const setPlayerReady = () => {
     playerReady = !playerReady;
@@ -117,6 +121,7 @@ const startGame = async () => {
           lastMoveDown = currentTime;
         }
         board.draw();
+        scoreDrawer.draw();
         break;
       case 'LOST':
         // render losing
