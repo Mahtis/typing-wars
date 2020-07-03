@@ -7,6 +7,7 @@ import boardStateHandler from './boardStateHandler';
 import { fetchWords } from './dataProvider';
 import startSequenceDrawer from './drawing/startSequenceDrawer';
 import readyingDrawer from './drawing/readyingDrawer';
+import waitingOpponentDrawer from './drawing/waitingOpponentDrawer';
 import _scoreDrawer from './drawing/scoreDrawer';
 
 const FALL_SPEED = 500;
@@ -61,6 +62,7 @@ const startGame = async () => {
   );
 
   const readyDrawer = readyingDrawer(canvas.getContext('2d'));
+  const waitOpponentDrawer = waitingOpponentDrawer(canvas.getContext('2d'));
   const scoreDrawer = _scoreDrawer(canvas.getContext('2d'), score);
   
   const setPlayerReady = () => {
@@ -84,6 +86,7 @@ const startGame = async () => {
     switch (gameState) {
       case 'CONNECTED':
         // wait for everything to be set up and opponent has connected
+        waitOpponentDrawer.draw();
         if(connection.isOpponentConnected()) {
           beginReadying();
         }
