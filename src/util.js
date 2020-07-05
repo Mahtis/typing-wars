@@ -1,2 +1,2 @@
 
-export const BACKEND_URL = document.location.host
+export const BACKEND_URL = document.location.origin
