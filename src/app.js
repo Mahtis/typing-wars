@@ -11,8 +11,8 @@ import waitingOpponentDrawer from './drawing/waitingOpponentDrawer';
 import _scoreDrawer from './drawing/scoreDrawer';
 
 const FALL_SPEED = 500;
-const BOARD_ROWS = 40;
-const BOARD_COLS = 30;
+const BOARD_ROWS = 30;
+const BOARD_COLS = 20;
 
 const startGame = async () => {
   let gameState = 'CONNECTED';
