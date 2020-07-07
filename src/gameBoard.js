@@ -1,13 +1,14 @@
+import drawerHelper, { GAMEBOARD_TILE_WIDTH } from './drawing/mainDrawer';
+
 const DEFAULT_COLOUR = '#000000';
-const BOARD_FONT = '22px Courier';
-const BOARD_FONT_HEIGHT = 15;
-const BOARD_FONT_WIDTH = 13;
 const OPPONENT_FONT = '16px Courier';
 const OPPONENT_FONT_HEIGHT = 8;
 const OPPONENT_FONT_WIDTH = 8;
 
 const gameBoard = (canvas, stringState, boardStateHandler) => {
   let opponentBoard = [];
+
+  const drawHelper = drawerHelper();
 
   const initBoard = () => {
     canvas.width = 1000;
@@ -17,38 +18,38 @@ const gameBoard = (canvas, stringState, boardStateHandler) => {
     drawText(ctx);
   };
 
-  const updateOpponentBoard = (board) => {
+  const updateOpponentBoard = board => {
     opponentBoard = board;
   };
 
-  const drawGameArea = (ctx) => {
-    // ctx.beginPath();
+  const drawGameArea = ctx => {
     ctx.fillStyle = '#fffcfa';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    // ctx.stroke();
-    // ctx.closePath();
     ctx.fillStyle = DEFAULT_COLOUR;
   };
 
-  const drawWordBoard = (ctx) => {
-    ctx.font = BOARD_FONT;
+  const drawWordBoard = ctx => {
     const wordBoard = boardStateHandler.getWordBoard();
     wordBoard.forEach((row, i) => {
       ctx.strokeStyle = 'rgba(0, 0, 255, 0.1)';
       [...row].forEach((char, j) => {
-        ctx.strokeRect(
-          20 + j * BOARD_FONT_WIDTH,
-          30 + i * BOARD_FONT_HEIGHT,
-          BOARD_FONT_WIDTH,
-          BOARD_FONT_HEIGHT
-        );
+        if (char === ' ') {
+          drawHelper.drawBgTile(
+            20 + j * GAMEBOARD_TILE_WIDTH,
+            30 + i * GAMEBOARD_TILE_WIDTH
+          );
+        } else {
+          drawHelper.drawCharTile(
+            char,
+            20 + j * GAMEBOARD_TILE_WIDTH,
+            30 + i * GAMEBOARD_TILE_WIDTH
+          );
+        }
       });
-      ctx.strokeStyle = DEFAULT_COLOUR;
-      ctx.fillText(row, 20, 30 + i * BOARD_FONT_HEIGHT);
     });
   };
 
-  const drawOpponentBoard = (ctx) => {
+  const drawOpponentBoard = ctx => {
     ctx.font = OPPONENT_FONT;
     opponentBoard.forEach((row, i) => {
       ctx.strokeStyle = 'rgba(0, 0, 255, 0.03)';
@@ -75,7 +76,7 @@ const gameBoard = (canvas, stringState, boardStateHandler) => {
     });
   };
 
-  const drawText = (ctx) => {
+  const drawText = ctx => {
     ctx.font = '30px Arial';
     ctx.fillText(stringState.getCurrentString(), 500, 300);
     ctx.font = '16px Arial';
@@ -96,7 +97,7 @@ const gameBoard = (canvas, stringState, boardStateHandler) => {
     ctx.font = '30px Arial';
     ctx.fillText('YOU ' + result, 500, 300);
     ctx.font = '16px Arial';
-  }
+  };
 
   return {
     initBoard,

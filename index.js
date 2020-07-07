@@ -18,6 +18,7 @@ const BASE_URL = process.env.BACKEND_URL;
 app.use(cors());
 
 app.use(express.static('dist'));
+app.use(express.static('public'));
 
 let existingRooms = ['room1', 'top_room', 'gangsta'];
 
