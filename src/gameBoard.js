@@ -30,6 +30,7 @@ const gameBoard = (canvas, stringState, boardStateHandler) => {
 
   const drawWordBoard = ctx => {
     const wordBoard = boardStateHandler.getWordBoard();
+    drawHelper.drawBoardFrame(30, 20, 0, 10);
     wordBoard.forEach((row, i) => {
       ctx.strokeStyle = 'rgba(0, 0, 255, 0.1)';
       [...row].forEach((char, j) => {
