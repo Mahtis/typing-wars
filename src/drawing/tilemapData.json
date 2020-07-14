@@ -1,0 +1,50 @@
+{
+  "bgBoardTile": {
+    "width": 20,
+    "height": 20,
+    "x": 20,
+    "y": 0
+  },
+  "charBoardTile": {
+    "width": 20,
+    "height": 20,
+    "x": 0,
+    "y": 0
+  },
+  "boardFrameTopLeft": {
+    "width": 20,
+    "height": 20,
+    "x": 0,
+    "y": 20
+  },
+  "boardFrameHorizontal": {
+    "width": 20,
+    "height": 20,
+    "x": 20,
+    "y": 20
+  },
+  "boardFrameTopRight": {
+    "width": 20,
+    "height": 20,
+    "x": 40,
+    "y": 20
+  },
+  "boardFrameVertical": {
+    "width": 20,
+    "height": 20,
+    "x": 0,
+    "y": 40
+  },
+  "boardFrameBottomLeft": {
+    "width": 20,
+    "height": 20,
+    "x": 0,
+    "y": 60
+  },
+  "boardFrameBottomRight": {
+    "width": 20,
+    "height": 20,
+    "x": 40,
+    "y": 60
+  }
+}
