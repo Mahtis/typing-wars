@@ -2,6 +2,9 @@ import { BACKEND_URL } from '../util';
 import tilemapData from './tilemapData.json';
 
 const TILESET_FILE = 'tileset.png';
+const BACKGROUND_IMG = 'background.png';
+const BACKGROUND_WIDTH = 333;
+const BACKGROUND_HEIGHT = 233;
 export const GAMEBOARD_TILE_WIDTH = 20;
 const CHAR_TILE_FONT = '15.5px VCR OSD Mono';
 
@@ -11,6 +14,8 @@ const drawerHelper = () => {
   const ctx = canvas.getContext('2d');
 
   const tileset = loadTileset();
+
+  const background = loadBackground();
 
   const drawFromTilemap = (
     tile,
@@ -32,6 +37,20 @@ const drawerHelper = () => {
       height
     );
   };
+
+  const drawBackground = (width, height) => {
+    ctx.drawImage(
+      background,
+      0,
+      0,
+      BACKGROUND_WIDTH,
+      BACKGROUND_HEIGHT,
+      0,
+      0,
+      width,
+      height
+    )
+  }
 
   const drawBgTile = (x, y) => {
     drawFromTilemap('bgBoardTile', x, y);
@@ -118,6 +137,7 @@ const drawerHelper = () => {
   };
 
   return {
+    drawBackground,
     drawBgTile,
     drawCharTile,
     drawBoardFrame
@@ -129,5 +149,11 @@ const loadTileset = () => {
   tileset.src = BACKEND_URL + '/' + TILESET_FILE;
   return tileset;
 };
+
+const loadBackground = () => {
+  const bg = new Image();
+  bg.src = BACKEND_URL + '/' + BACKGROUND_IMG;
+  return bg;
+}
 
 export default drawerHelper;

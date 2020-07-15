@@ -1,6 +1,6 @@
 import drawerHelper, { GAMEBOARD_TILE_WIDTH } from './drawing/mainDrawer';
 
-const DEFAULT_COLOUR = '#000000';
+const DEFAULT_COLOUR = '#d2d3b2';
 const OPPONENT_FONT = '16px Courier';
 const OPPONENT_FONT_HEIGHT = 8;
 const OPPONENT_FONT_WIDTH = 8;
@@ -8,12 +8,23 @@ const OPPONENT_FONT_WIDTH = 8;
 const gameBoard = (canvas, stringState, boardStateHandler) => {
   let opponentBoard = [];
 
+  let width = 1000;
+  let height = 700;
+
   const drawHelper = drawerHelper();
 
   const initBoard = () => {
-    canvas.width = 1000;
-    canvas.height = 700;
+    const {innerHeight, innerWidth} = window
+    canvas.width = innerWidth > 1030 ? innerWidth - 30 : 1000;
+    canvas.height = innerHeight > 730 ? innerHeight - 30 : 700;
+    width = canvas.width;
+    height = canvas.height;
     const ctx = canvas.getContext('2d');
+    // disable smoothing
+    ctx.mozImageSmoothingEnabled = false;
+    ctx.webkitImageSmoothingEnabled = false;
+    ctx.msImageSmoothingEnabled = false;
+    ctx.imageSmoothingEnabled = false;
     drawGameArea(ctx);
     drawText(ctx);
   };
@@ -23,8 +34,9 @@ const gameBoard = (canvas, stringState, boardStateHandler) => {
   };
 
   const drawGameArea = ctx => {
-    ctx.fillStyle = '#fffcfa';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    drawHelper.drawBackground(width, height)
+    // ctx.fillStyle = '#333333';
+    // ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = DEFAULT_COLOUR;
   };
 
