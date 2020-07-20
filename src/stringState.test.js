@@ -64,6 +64,24 @@ describe('stringState', () => {
       });
     });
 
+    fdescribe('given the string matches a word on skip list', () => {
+      beforeEach(() => {
+        state.updateString('PASS');
+        state.updateString(' ');
+      });
+
+      it('removes the last word from the main word list', () => {
+        expect(state.getWordList().length).toBe(2);
+        expect(state.getWordList()[1]).toBe('toka');
+      });
+
+      it('removes the last word from the skip list', () => {
+        expect(state.getSkipList().length).toBe(2);
+        expect(state.getSkipList()[1]).toBe('PASS');
+      });
+    });
+    
+
     it('if the key is space, sets string back to empty', () => {
       state.updateString('D');
       state.updateString(' ');
