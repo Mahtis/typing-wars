@@ -8,14 +8,14 @@ const BACKGROUND_HEIGHT = 233;
 export const GAMEBOARD_TILE_WIDTH = 20;
 const CHAR_TILE_FONT = '15.5px VCR OSD Mono';
 
-const drawerHelper = () => {
+const drawerHelper = async () => {
   const canvas = document.getElementById('game');
 
   const ctx = canvas.getContext('2d');
 
-  const tileset = loadTileset();
+  const sprites = await loadTileset();
 
-  const background = loadBackground();
+  const background = await loadBackground();
 
   const drawFromTilemap = (
     tile,
@@ -26,9 +26,9 @@ const drawerHelper = () => {
   ) => {
     const img = tilemapData[tile];
     ctx.drawImage(
-      tileset,
-      img.x,
-      img.y,
+      sprites[tile],
+      0,
+      0,
       img.width,
       img.height,
       x,
@@ -51,6 +51,8 @@ const drawerHelper = () => {
       height
     )
   }
+
+  const getSprite = (sprite) => sprites[sprite]
 
   const drawBgTile = (x, y) => {
     drawFromTilemap('bgBoardTile', x, y);
@@ -140,19 +142,64 @@ const drawerHelper = () => {
     drawBackground,
     drawBgTile,
     drawCharTile,
-    drawBoardFrame
+    drawBoardFrame,
+    getSprite
   };
 };
 
-const loadTileset = () => {
+const loadTileset = async () => {
   const tileset = new Image();
   tileset.src = BACKEND_URL + '/' + TILESET_FILE;
-  return tileset;
+  tileset.crossOrigin = "Anonymous";
+  await tileset.decode();
+  
+  const sprites = loadSprites(tileset, tilemapData);
+  return sprites;
 };
 
-const loadBackground = () => {
+const loadSprites = async (tileset, tilemapData) => {
+  const spriteArray = await Promise.all(Object.keys(tilemapData).map(async key => {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = tilemapData[key];
+    
+    canvas.width = img.width;
+    canvas.height = img.height;
+
+    ctx.drawImage(
+      tileset,
+      img.x,
+      img.y,
+      img.width,
+      img.height,
+      0,
+      0,
+      img.width,
+      img.height
+    );
+
+    const sprite = await loadImage(canvas);
+    return { name: key, sprite };
+  }));
+
+  const sprites = spriteArray.reduce((obj, item) => (obj[item.name] = item.sprite, obj) ,{});
+
+  return sprites;
+}
+
+const loadImage = (canvas) => new Promise((resolve, reject) => {
+  let sprite = new Image();
+  sprite.onload = () => {
+    resolve(sprite);
+  };
+  sprite.onerror = reject;
+  sprite.src = canvas.toDataURL();
+})
+
+const loadBackground = async () => {
   const bg = new Image();
   bg.src = BACKEND_URL + '/' + BACKGROUND_IMG;
+  await bg.decode();
   return bg;
 }
 

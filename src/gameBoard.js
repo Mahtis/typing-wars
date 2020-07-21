@@ -5,13 +5,13 @@ const OPPONENT_FONT = '16px Courier';
 const OPPONENT_FONT_HEIGHT = 8;
 const OPPONENT_FONT_WIDTH = 8;
 
-const gameBoard = (canvas, stringState, boardStateHandler) => {
+const gameBoard = (canvas, stringState, boardStateHandler, drawHelper) => {
   let opponentBoard = [];
 
   let width = 1000;
   let height = 700;
 
-  const drawHelper = drawerHelper();
+  // const drawHelper = drawerHelper();
 
   const initBoard = () => {
     const {innerHeight, innerWidth} = window
@@ -65,8 +65,8 @@ const gameBoard = (canvas, stringState, boardStateHandler) => {
   const drawOpponentBoard = ctx => {
     ctx.font = OPPONENT_FONT;
     opponentBoard.forEach((row, i) => {
-      ctx.strokeStyle = 'rgba(0, 0, 255, 0.03)';
-      ctx.fillStyle = 'rgba(0, 0, 255, 0.1)';
+      ctx.strokeStyle = '#8e8f79';
+      ctx.fillStyle = '#d3c1b5';
       [...row].forEach((char, j) => {
         if (char !== ' ') {
           ctx.fillRect(
@@ -95,6 +95,23 @@ const gameBoard = (canvas, stringState, boardStateHandler) => {
     ctx.font = '16px Arial';
     const wordString = stringState.getWordList().reverse().join(' ');
     ctx.fillText(wordString, 500, 320);
+    drawWordListInIcons(ctx, stringState.getSkipList(), 500, 670, drawHelper.getSprite('heart'));
+  };
+
+  const drawWordListInIcons = (ctx, list, x, y, icon) => {
+    ctx.font = '16px VCR OSD Mono';
+    const wordString = list.reverse().join(' ');
+    ctx.drawImage(
+      icon, 
+      0,
+      0,
+      icon.width,
+      icon.height,
+      x,
+      y,
+      50,
+      40);
+    ctx.fillText(wordString, x, y);
   };
 
   const draw = () => {

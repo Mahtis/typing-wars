@@ -9,6 +9,7 @@ import startSequenceDrawer from './drawing/startSequenceDrawer';
 import readyingDrawer from './drawing/readyingDrawer';
 import waitingOpponentDrawer from './drawing/waitingOpponentDrawer';
 import _scoreDrawer from './drawing/scoreDrawer';
+import drawHelper from './drawing/mainDrawer';
 
 const FALL_SPEED = 500;
 const BOARD_ROWS = 30;
@@ -52,7 +53,10 @@ const startGame = async () => {
   const handler = keyHandler();
 
   const canvas = document.getElementById('game');
-  const board = gameBoard(canvas, typingState, boardState);
+
+  const helper = await drawHelper()
+
+  const board = gameBoard(canvas, typingState, boardState, helper);
 
   board.initBoard();
   
