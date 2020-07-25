@@ -14,7 +14,7 @@ const initWordSets = (mainList = []) => ({
   },
   skipList: {
     active: true,
-    words: ['PASS', 'PASS', 'PASS'],
+    words: ['PASS', 'SKIP', 'PASS'],
     updateScore: false,
     sendMessage: false
   },

@@ -77,7 +77,7 @@ describe('stringState', () => {
 
       it('removes the last word from the skip list', () => {
         expect(state.getSkipList().length).toBe(2);
-        expect(state.getSkipList()[1]).toBe('PASS');
+        expect(state.getSkipList()[1]).toBe('SKIP');
       });
     });
     
