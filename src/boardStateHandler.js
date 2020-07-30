@@ -5,7 +5,7 @@ const range = (from, to) =>
   Array(to + 1 - from)
     .fill(from)
     .map((fromValue, i) => fromValue + i)
-    .filter((value) => value >= 0);
+    .filter(value => value >= 0);
 
 const boardStateHandler = (rows, cols, endMatchCallback, matchEndrow = 0) => {
   const rowWidth = cols;
@@ -15,12 +15,14 @@ const boardStateHandler = (rows, cols, endMatchCallback, matchEndrow = 0) => {
 
   let droppingWords = [];
 
-  const addWord = (word) => {
+  const completedRows = { completed: [], added: [] };
+
+  const addWord = word => {
     const newWord = {
       word,
       orientation: 'HORIZONTAL',
       char: 0,
-      row: -1,
+      row: -1
     };
     droppingWords.push(newWord);
     moveWordsDown();
@@ -30,10 +32,8 @@ const boardStateHandler = (rows, cols, endMatchCallback, matchEndrow = 0) => {
     return droppingWords[0];
   };
 
-  const removeWordFromDroppingWords = (removableWord) => {
-    const removeIndex = droppingWords.findIndex(
-      (word) => word === removableWord
-    );
+  const removeWordFromDroppingWords = removableWord => {
+    const removeIndex = droppingWords.findIndex(word => word === removableWord);
     droppingWords.splice(removeIndex, 1);
   };
 
@@ -52,31 +52,45 @@ const boardStateHandler = (rows, cols, endMatchCallback, matchEndrow = 0) => {
         return { index: currentRow, row: newRow };
       }
     });
-    return rows.filter((row) => row !== undefined);
+    return rows.filter(row => row !== undefined);
   };
 
   // Name this createRowsForBoard
   const addWordToBoard = (word, board) => {
+    const newBoard = [...board];
     let newRows = [];
+
     if (word.orientation === 'VERTICAL') {
       newRows = createRowsForVerticalWord(word, board);
     } else {
       const newRow = createNewRowForWord(word.word, word.char, board[word.row]);
       newRows.push({ index: word.row, row: newRow });
     }
+
     // TODO: Just return the newRows, let caller handle the rest
-    newRows.forEach((newRow) => (board[newRow.index] = newRow.row));
+    newRows.forEach((newRow) => (newBoard[newRow.index] = newRow.row));
+    return newBoard;
   };
 
   // TODO: update boards through this and return the newBoard
-  const updateBoardWithRows = (board, newRows) => {
-    const newBoard = [];
-    return;
+  const updateBoardWithRows = (newRows) => {
+    const board = [...wordBoard];
+
+    newRows.forEach(newRow => (board[newRow.index] = newRow.row));
+
+    return board;
   };
 
   // TODO: Dont know if this is necessary, but maybe
-  const updateWordBoard = (board) => {
-    return true;
+  const updateWordBoard = board => {
+    board.forEach((row, i) => {
+      if (!row.includes(' ') 
+        && !completedRows.added.includes(i) 
+        && !completedRows.completed.includes(i)) {
+        completedRows.completed.push(i)
+      }
+    });
+    wordBoard = board
   };
 
   const checkWordEndsGame = word => {
@@ -85,7 +99,7 @@ const boardStateHandler = (rows, cols, endMatchCallback, matchEndrow = 0) => {
     }
     // Vertical word reaches (row - length + 1) rows above current row
     return word.row - word.word.length + 1 <= matchEndrow;
-  }
+  };
 
   const moveWordsDown = () => {
     // Maybe if part of the word is on top of another word and part is not
@@ -100,10 +114,16 @@ const boardStateHandler = (rows, cols, endMatchCallback, matchEndrow = 0) => {
         newDroppingWords.push(word);
       } else {
         const wordToAddToBoard = droppingWords[i];
+
         if (checkWordEndsGame(wordToAddToBoard)) {
           endMatchCallback();
         }
-        addWordToBoard(wordToAddToBoard, wordBoard);
+
+        const newBoard = addWordToBoard(wordToAddToBoard, wordBoard);
+
+        // const newBoard = updateBoardWithRows(newRows);
+
+        updateWordBoard(newBoard);
       }
     }
 
@@ -129,7 +149,12 @@ const boardStateHandler = (rows, cols, endMatchCallback, matchEndrow = 0) => {
       endMatchCallback();
     }
     removeWordFromDroppingWords(droppingWord);
-    addWordToBoard(droppingWord, wordBoard);
+
+    const newBoard = addWordToBoard(droppingWord, wordBoard);
+
+    // const newBoard = updateBoardWithRows(newRows);
+
+    updateWordBoard(newBoard);
   };
 
   const isBelowWordEmpty = (word, nextRow) => {
@@ -146,9 +171,9 @@ const boardStateHandler = (rows, cols, endMatchCallback, matchEndrow = 0) => {
 
   // checks whether given columns on specified rows is empty
   const isSpotFree = (chars, rows) =>
-    rows.every((row) =>
+    rows.every(row =>
       chars.every(
-        (char) =>
+        char =>
           wordBoard[row][char] === ' ' &&
           wordBoard[row][char] >= 0 &&
           wordBoard[row][char] <= rowWidth
@@ -167,7 +192,7 @@ const boardStateHandler = (rows, cols, endMatchCallback, matchEndrow = 0) => {
 
   // Considers whether there is something on the right side of the word
   // so that it would not fit there horizontally and does not rotate it if so
-  const rotateVerticalWord = (word) => {
+  const rotateVerticalWord = word => {
     const cols = range(word.char, word.char + word.word.length - 1);
     if (isSpotFree(cols, [word.row])) {
       word.orientation = 'HORIZONTAL';
@@ -205,21 +230,57 @@ const boardStateHandler = (rows, cols, endMatchCallback, matchEndrow = 0) => {
     }
   };
 
-  const addDroppingWordsToBoard = (originalBoard) => {
-    const board = [...originalBoard];
-    [...droppingWords].reverse().forEach((word) => addWordToBoard(word, board));
+  const addDroppingWordsToBoard = () => {
+    let board = [...wordBoard]
+    const newRows = [...droppingWords]
+      .reverse()
+      .forEach(word => {
+        const newBoard = addWordToBoard(word, board)
+        board = newBoard;
+        // rows.forEach(newRow => (board[newRow.index] = newRow.row));
+      });
+
+    // const filledBoard = [...wordBoard]
+    // newRows.forEach(wordRows => wordRows.forEach(row => {
+    //   filledBoard[row.index] = row.row
+    // }));
     return board;
   };
 
   const getWordBoard = () => {
-    const filledBoard = addDroppingWordsToBoard(wordBoard);
-    return filledBoard;
+    return addDroppingWordsToBoard();
   };
 
   const setWordBoard = (newBoard, newDroppingWords) => {
     wordBoard = [...newBoard];
     droppingWords = [...newDroppingWords];
   };
+
+  const clearDroppingWords = () => {
+    droppingWords = [];
+  };
+
+  const addRow = row => {
+    const board = wordBoard.slice(1);
+    let trimmedRow = row.slice(0, rowWidth);
+    if (row.length < rowWidth) {
+      trimmedRow = row.concat('x'.repeat(rowWidth - row.length));
+    }
+    board.push(trimmedRow);
+    const updatedAdded = completedRows.added.map(rowIndex => rowIndex - 1);
+    const updatedCompletes = completedRows.completed.map(rowIndex => rowIndex - 1);
+    updatedAdded.unshift(wordBoard.length - 1);
+
+    setCompletedRows(updatedCompletes, updatedAdded);
+    updateWordBoard(board);
+  };
+
+  const setCompletedRows = (completed, added) => {
+    completedRows.added = added;
+    completedRows.completed = completed;
+  }
+
+  const getCompletedRows = () => completedRows;
 
   return {
     addWord,
@@ -230,6 +291,9 @@ const boardStateHandler = (rows, cols, endMatchCallback, matchEndrow = 0) => {
     moveWordRight,
     rotateWord,
     dropWord,
+    clearDroppingWords,
+    addRow,
+    getCompletedRows
   };
 };
 

@@ -10,7 +10,20 @@ const EMPTY_BOARD = [
   '                    ',
   '                    ',
   '                    ',
+  '                    '
+];
+
+const BOARD_WITH_WORDS = [
   '                    ',
+  '                    ',
+  '                    ',
+  '                    ',
+  '                    ',
+  '                    ',
+  '                   p',
+  '                   u',
+  '   some  world     o',
+  '      Hello        g'
 ];
 
 describe('gameState', () => {
@@ -25,7 +38,7 @@ describe('gameState', () => {
       '          ',
       '          ',
       '          ',
-      '          ',
+      '          '
     ]);
   });
 
@@ -53,7 +66,7 @@ describe('gameState', () => {
         '                    ',
         '                    ',
         '                    ',
-        '                    ',
+        '                    '
       ]);
     });
 
@@ -71,7 +84,7 @@ describe('gameState', () => {
         '                    ',
         '                    ',
         '                    ',
-        '                    ',
+        '                    '
       ]);
     });
 
@@ -90,7 +103,7 @@ describe('gameState', () => {
         '                    ',
         '                    ',
         '                    ',
-        '                    ',
+        '                    '
       ]);
     });
 
@@ -108,7 +121,7 @@ describe('gameState', () => {
         '                    ',
         '                    ',
         '                    ',
-        '                    ',
+        '                    '
       ]);
     });
 
@@ -118,7 +131,7 @@ describe('gameState', () => {
         { word: 'SecondWord', orientation: 'HORIZONTAL', char: 4, row: 4 },
         { word: 'ThirdWord', orientation: 'HORIZONTAL', char: 0, row: 3 },
         { word: 'FourthWord', orientation: 'HORIZONTAL', char: 0, row: 1 },
-        { word: 'FifthWord', orientation: 'HORIZONTAL', char: 0, row: 0 },
+        { word: 'FifthWord', orientation: 'HORIZONTAL', char: 0, row: 0 }
       ]);
       gameState.addWord('SixthWord');
 
@@ -132,7 +145,7 @@ describe('gameState', () => {
         '                    ',
         '          FirstWord ',
         '                    ',
-        '                    ',
+        '                    '
       ]);
     });
   });
@@ -152,7 +165,7 @@ describe('gameState', () => {
         '                    ',
         '                    ',
         '                    ',
-        '                    ',
+        '                    '
       ]);
     });
 
@@ -168,12 +181,12 @@ describe('gameState', () => {
           '                    ',
           '                    ',
           'anotherWord         ',
-          'bottomWord          ',
+          'bottomWord          '
         ],
         [
           { word: 'FirstWord', orientation: 'VERTICAL', char: 18, row: 9 },
           { word: 'SecondWord', orientation: 'HORIZONTAL', char: 2, row: 7 },
-          { word: 'ThirdWord', orientation: 'HORIZONTAL', char: 0, row: 3 },
+          { word: 'ThirdWord', orientation: 'HORIZONTAL', char: 0, row: 3 }
         ]
       );
 
@@ -189,7 +202,7 @@ describe('gameState', () => {
         '                  s ', // 6
         '  SecondWord      r ', // 7
         'anotherWord       i ', // 8
-        'bottomWord        F ', // 9
+        'bottomWord        F ' // 9
       ]);
     });
 
@@ -199,7 +212,7 @@ describe('gameState', () => {
         { word: 'SecondWord', orientation: 'HORIZONTAL', char: 4, row: 8 },
         { word: 'ThirdWord', orientation: 'HORIZONTAL', char: 0, row: 7 },
         { word: 'FourthWord', orientation: 'HORIZONTAL', char: 0, row: 3 },
-        { word: 'FifthWord', orientation: 'HORIZONTAL', char: 0, row: 2 },
+        { word: 'FifthWord', orientation: 'HORIZONTAL', char: 0, row: 2 }
       ]);
       gameState.moveWordsDown();
       gameState.moveWordsDown();
@@ -215,7 +228,7 @@ describe('gameState', () => {
         'FourthWord          ',
         'ThirdWord           ',
         '    SecondWord      ',
-        '          FirstWord ',
+        '          FirstWord '
       ]);
     });
   });
@@ -226,7 +239,7 @@ describe('gameState', () => {
       { word: 'SecondWord', orientation: 'HORIZONTAL', char: 4, row: 4 },
       { word: 'ThirdWord', orientation: 'HORIZONTAL', char: 0, row: 3 },
       { word: 'FourthWord', orientation: 'HORIZONTAL', char: 0, row: 1 },
-      { word: 'FifthWord', orientation: 'HORIZONTAL', char: 0, row: 0 },
+      { word: 'FifthWord', orientation: 'HORIZONTAL', char: 0, row: 0 }
     ]);
     gameState.moveWordsDown();
 
@@ -240,7 +253,7 @@ describe('gameState', () => {
       '          i         ',
       '          F         ',
       '                    ',
-      '                    ',
+      '                    '
     ]);
   });
 
@@ -251,7 +264,7 @@ describe('gameState', () => {
         { word: 'SecondWord', orientation: 'HORIZONTAL', char: 4, row: 4 },
         { word: 'ThirdWord', orientation: 'HORIZONTAL', char: 0, row: 3 },
         { word: 'FourthWord', orientation: 'HORIZONTAL', char: 0, row: 1 },
-        { word: 'FifthWord', orientation: 'HORIZONTAL', char: 0, row: 0 },
+        { word: 'FifthWord', orientation: 'HORIZONTAL', char: 0, row: 0 }
       ]);
       gameState.rotateWord();
     });
@@ -267,7 +280,7 @@ describe('gameState', () => {
         '          F         ',
         '                    ',
         '                    ',
-        '                    ',
+        '                    '
       ]);
     });
 
@@ -284,13 +297,13 @@ describe('gameState', () => {
         '          FirstWord ',
         '                    ',
         '                    ',
-        '                    ',
+        '                    '
       ]);
     });
 
     it('if the active word is vertical and at the right edge of the board, does not rotate it', () => {
       gameState.setWordBoard(EMPTY_BOARD, [
-        { word: 'FirstWord', orientation: 'VERTICAL', char: 19, row: 6 },
+        { word: 'FirstWord', orientation: 'VERTICAL', char: 19, row: 6 }
       ]);
 
       gameState.rotateWord();
@@ -305,7 +318,7 @@ describe('gameState', () => {
         '                   F',
         '                    ',
         '                    ',
-        '                    ',
+        '                    '
       ]);
     });
 
@@ -321,7 +334,7 @@ describe('gameState', () => {
           '     Y              ',
           '     Y              ',
           '     Y              ',
-          '     Y              ',
+          '     Y              '
         ],
         [{ word: 'XXX', orientation: 'VERTICAL', char: 3, row: 6 }]
       );
@@ -338,7 +351,7 @@ describe('gameState', () => {
         '   X Y              ',
         '     Y              ',
         '     Y              ',
-        '     Y              ',
+        '     Y              '
       ]);
     });
   });
@@ -350,7 +363,7 @@ describe('gameState', () => {
         { word: 'SecondWord', orientation: 'HORIZONTAL', char: 4, row: 4 },
         { word: 'ThirdWord', orientation: 'HORIZONTAL', char: 0, row: 3 },
         { word: 'FourthWord', orientation: 'HORIZONTAL', char: 0, row: 1 },
-        { word: 'FifthWord', orientation: 'HORIZONTAL', char: 0, row: 0 },
+        { word: 'FifthWord', orientation: 'HORIZONTAL', char: 0, row: 0 }
       ]);
 
       gameState.moveWordRight();
@@ -367,7 +380,7 @@ describe('gameState', () => {
         '           FirstWord',
         '                    ',
         '                    ',
-        '                    ',
+        '                    '
       ]);
     });
 
@@ -384,7 +397,7 @@ describe('gameState', () => {
         '           FirstWord',
         '                    ',
         '                    ',
-        '                    ',
+        '                    '
       ]);
     });
 
@@ -402,7 +415,7 @@ describe('gameState', () => {
         '            F       ',
         '                    ',
         '                    ',
-        '                    ',
+        '                    '
       ]);
     });
 
@@ -418,7 +431,7 @@ describe('gameState', () => {
           '                    ',
           '                    ',
           '                    ',
-          '      wordOnRight   ',
+          '      wordOnRight   '
         ],
         [{ word: 'XX', orientation: 'HORIZONTAL', char: 4, row: 9 }]
       );
@@ -435,7 +448,7 @@ describe('gameState', () => {
         '                    ',
         '                    ',
         '                    ',
-        '    XXwordOnRight   ',
+        '    XXwordOnRight   '
       ]);
     });
 
@@ -451,7 +464,7 @@ describe('gameState', () => {
           '                    ',
           '                    ',
           ' YYYYYYYYY          ',
-          '      YYY           ',
+          '      YYY           '
         ],
         [{ word: 'XX', orientation: 'VERTICAL', char: 0, row: 9 }]
       );
@@ -468,7 +481,7 @@ describe('gameState', () => {
         '                    ',
         '                    ',
         'XYYYYYYYYY          ',
-        'X     YYY           ',
+        'X     YYY           '
       ]);
     });
   });
@@ -480,7 +493,7 @@ describe('gameState', () => {
         { word: 'SecondWord', orientation: 'HORIZONTAL', char: 4, row: 4 },
         { word: 'ThirdWord', orientation: 'HORIZONTAL', char: 0, row: 3 },
         { word: 'FourthWord', orientation: 'HORIZONTAL', char: 0, row: 1 },
-        { word: 'FifthWord', orientation: 'HORIZONTAL', char: 0, row: 0 },
+        { word: 'FifthWord', orientation: 'HORIZONTAL', char: 0, row: 0 }
       ]);
 
       gameState.moveWordLeft();
@@ -497,7 +510,7 @@ describe('gameState', () => {
         '         FirstWord  ',
         '                    ',
         '                    ',
-        '                    ',
+        '                    '
       ]);
     });
 
@@ -516,7 +529,7 @@ describe('gameState', () => {
         '                    ',
         '                    ',
         '    SecondWord      ',
-        '         FirstWord  ',
+        '         FirstWord  '
       ]);
     });
 
@@ -532,7 +545,7 @@ describe('gameState', () => {
           '                    ',
           '                    ',
           '                    ',
-          ' wordOnLeft         ',
+          ' wordOnLeft         '
         ],
         [{ word: 'XX', orientation: 'HORIZONTAL', char: 11, row: 9 }]
       );
@@ -549,7 +562,7 @@ describe('gameState', () => {
         '                    ',
         '                    ',
         '                    ',
-        ' wordOnLeftXX       ',
+        ' wordOnLeftXX       '
       ]);
     });
   });
@@ -561,7 +574,7 @@ describe('gameState', () => {
         { word: 'SecondWord', orientation: 'HORIZONTAL', char: 4, row: 4 },
         { word: 'ThirdWord', orientation: 'HORIZONTAL', char: 0, row: 3 },
         { word: 'FourthWord', orientation: 'HORIZONTAL', char: 0, row: 1 },
-        { word: 'FifthWord', orientation: 'HORIZONTAL', char: 0, row: 0 },
+        { word: 'FifthWord', orientation: 'HORIZONTAL', char: 0, row: 0 }
       ]);
 
       gameState.dropWord();
@@ -578,7 +591,7 @@ describe('gameState', () => {
         '                    ',
         '                    ',
         '                    ',
-        '          FirstWord ',
+        '          FirstWord '
       ]);
     });
 
@@ -595,7 +608,7 @@ describe('gameState', () => {
         '                    ',
         '                    ',
         '    SecondWord      ',
-        '          FirstWord ',
+        '          FirstWord '
       ]);
     });
 
@@ -619,7 +632,7 @@ describe('gameState', () => {
         '          c         ',
         '          e         ',
         '          S         ',
-        '          FirstWord ',
+        '          FirstWord '
       ]);
     });
   });
@@ -638,7 +651,7 @@ describe('gameState', () => {
             'YYY                 ',
             'YYYYY               ',
             ' YYYYYYYYY          ',
-            '      YYY           ',
+            '      YYY           '
           ],
           [
             { word: 'LongWord', orientation: 'HORIZONTAL', char: 10, row: 4 },
@@ -671,5 +684,195 @@ describe('gameState', () => {
         expect(endMatchMock).toHaveBeenCalled();
       });
     });
+  });
+
+  describe('clearing dropping words', () => {
+    beforeEach(() => {
+      gameState.setWordBoard(BOARD_WITH_WORDS, [
+        { word: 'someword', orientation: 'HORIZONTAL', char: 0, row: 7 },
+        { word: 'X', orientation: 'HORIZONTAL', char: 19, row: 5 },
+        { word: 'otherword', orientation: 'HORIZONTAL', char: 3, row: 3 }
+      ]);
+
+      gameState.clearDroppingWords();
+    });
+
+    it('removes all dropping words from board only', () => {
+      expect(gameState.getWordBoard()).toEqual(BOARD_WITH_WORDS);
+    });
+  });
+
+  describe('adding rows', () => {
+    it('adds the given row to the bottom of the board', () => {
+      gameState.setWordBoard(EMPTY_BOARD, []);
+      gameState.addRow('12345678901234567890');
+
+      expect(gameState.getWordBoard()).toEqual([
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '12345678901234567890'
+      ]);
+    });
+
+    it('moves all existing rows one row up', () => {
+      gameState.setWordBoard(BOARD_WITH_WORDS, []);
+      gameState.addRow('12345678901234567890');
+
+      expect(gameState.getWordBoard()).toEqual([
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                   p',
+        '                   u',
+        '   some  world     o',
+        '      Hello        g',
+        '12345678901234567890'
+      ]);
+    });
+
+    it('given the added row is too long, adds only part that fits on board', () => {
+      gameState.setWordBoard(EMPTY_BOARD, []);
+      gameState.addRow('12345678901234567890toolong');
+
+      expect(gameState.getWordBoard()).toEqual([
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '12345678901234567890'
+      ]);
+    });
+
+    it('given the added row is too short, adds enogugh xs to fit the board', () => {
+      gameState.setWordBoard(EMPTY_BOARD, []);
+      gameState.addRow('12');
+
+      expect(gameState.getWordBoard()).toEqual([
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '                    ',
+        '12xxxxxxxxxxxxxxxxxx'
+      ]);
+    });
+  });
+
+  describe('getting completed rows', () => {
+    beforeEach(() => {
+      gameState.setWordBoard(
+        [
+          '                    ',
+          '                    ',
+          '                    ',
+          '                    ',
+          '                    ',
+          '                    ',
+          '                    ',
+          '                    ',
+          ' yyyyyyyyyyyyyyyyyyy',
+          ' xxxxxxxxxxxxxxxxxxx'
+        ],
+        [{ word: 'y', orientation: 'HORIZONTAL', char: 0, row: 9 },
+        { word: 'x', orientation: 'HORIZONTAL', char: 0, row: 7 }]
+      );
+    });
+
+    it('returns empty arrays when there are no completed rows', () => {
+      expect(gameState.getCompletedRows()).toEqual({
+        completed: [],
+        added: []
+      });
+    });
+
+    it('after words move down and a row gets completed, there is one completed row with correct row number', () => {
+      gameState.moveWordsDown();
+
+      expect(gameState.getCompletedRows()).toEqual({
+        completed: [9],
+        added: []
+      });
+    });
+
+    it('when another row completes, returns two rows as completed', () => {
+      gameState.moveWordsDown();
+      gameState.moveWordsDown();
+
+      expect(gameState.getCompletedRows()).toEqual({
+        completed: [9, 8],
+        added: []
+      });
+    });
+    
+    describe('when a row is added to board', () => {
+      beforeEach(() => {
+        gameState.moveWordsDown();
+        gameState.moveWordsDown();
+    
+        gameState.addRow('12345');
+      });
+
+      it('returns one added and shifts completed rows correctly by one', () => {
+        expect(gameState.getCompletedRows()).toEqual({
+          completed: [8, 7],
+          added: [9]
+        });
+      });
+
+      it('when a second row is added, shifts the added rows as well by one', () => {
+        gameState.addRow('somerow');
+
+        expect(gameState.getCompletedRows()).toEqual({
+          completed: [7, 6],
+          added: [9, 8]
+        });
+      });
+    });
+
+    it('given multiple rows are completed at once, sets them all as completed', () => {
+      gameState.setWordBoard(
+        [
+          '                    ',
+          '                    ',
+          '                    ',
+          '                    ',
+          '                    ',
+          '                    ',
+          '                    ',
+          ' zzzzzzzzzzzzzzzzzzz',
+          ' yyyyyyyyyyyyyyyyyyy',
+          ' xxxxxxxxxxxxxxxxxxx'
+        ],
+        [{ word: 'y', orientation: 'HORIZONTAL', char: 0, row: 9 },
+        { word: 'x', orientation: 'HORIZONTAL', char: 0, row: 8 },
+        { word: 'z', orientation: 'HORIZONTAL', char: 0, row: 7 }]
+      );
+
+      gameState.moveWordsDown();
+
+      expect(gameState.getCompletedRows()).toEqual({
+        completed: [9, 8, 7],
+        added: []
+      });
+    });
+    
   });
 });
