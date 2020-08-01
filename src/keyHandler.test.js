@@ -20,7 +20,7 @@ describe('keyHandler', () => {
     let typingEventStub;
 
     beforeEach(() => {
-      typingEventStub = { key: 'A' };
+      typingEventStub = { key: 'A', preventDefault: jest.fn() };
 
       handler.gameKeyHandler(
         typingHandlerMock,
@@ -30,6 +30,10 @@ describe('keyHandler', () => {
 
     it('calls pressed key correctly', () => {
       expect(typingHandlerMock).toHaveBeenCalled();
+    });
+
+    it('default event is prevented', () => {
+      expect(typingEventStub.preventDefault).toHaveBeenCalled();
     });
 
     it('does not call any board movement handler', () => {
@@ -45,7 +49,7 @@ describe('keyHandler', () => {
       handler.gameKeyHandler(
         typingHandlerMock,
         boardMovementHandlerStub
-      )({ key })
+      )({ key, preventDefault: jest.fn() })
     );
 
     expect(typingHandlerMock).not.toHaveBeenCalled();
@@ -67,10 +71,10 @@ describe('keyHandler', () => {
         typingHandlerMock,
         boardMovementHandlerStub
       );
-      rotateStub = { key: 'ArrowUp' };
-      leftStub = { key: 'ArrowLeft' };
-      rightStub = { key: 'ArrowRight' };
-      dropStub = { key: 'ArrowDown' };
+      rotateStub = { key: 'ArrowUp', preventDefault: jest.fn() };
+      leftStub = { key: 'ArrowLeft', preventDefault: jest.fn() };
+      rightStub = { key: 'ArrowRight', preventDefault: jest.fn() };
+      dropStub = { key: 'ArrowDown', preventDefault: jest.fn() };
     });
 
     it('if event is up arrow, calls word rotation', () => {
@@ -130,19 +134,19 @@ describe('keyHandler', () => {
     });
 
     it('when enter is pressed, calls the ready callback', () => {
-      readyKeyListener({ key: 'Enter' });
+      readyKeyListener({ key: 'Enter', preventDefault: jest.fn() });
 
       expect(readyKeyCallbackMock).toHaveBeenCalled();
     })
 
     it('when space is pressed, calls the ready callback', () => {
-      readyKeyListener({ key: ' ' });
+      readyKeyListener({ key: ' ', preventDefault: jest.fn() });
 
       expect(readyKeyCallbackMock).toHaveBeenCalled();
     })
 
     it('when an unspecified kay is pressed, does not calls the ready callback', () => {
-      readyKeyListener({ key: 'F' });
+      readyKeyListener({ key: 'F', preventDefault: jest.fn() });
 
       expect(readyKeyCallbackMock).not.toHaveBeenCalled();
     })

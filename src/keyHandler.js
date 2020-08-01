@@ -12,6 +12,8 @@ export const BOARD_KEYS = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']
 
 const keyHandler = () => {
   const gameKeyHandler = (typingCallback, movementCallback) => e => {
+    e.preventDefault();
+    
     const movementHandler = key => {
       switch (key) {
         case 'ArrowUp':
