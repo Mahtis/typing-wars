@@ -13,6 +13,7 @@ const clientConnection = addWord => {
   let updateOpponentBoard = () => {};
   let readyOpponnent = () => {};
   let winGame = () => {};
+  let recieveRows = () => {};
 
   const getRoomName = () => {
     const path = document.location.pathname.split('/');
@@ -36,6 +37,8 @@ const clientConnection = addWord => {
 
     socket.on('msg', msg => addWord(msg));
 
+    socket.on('rows', rows => recieveRows(rows));
+
     socket.on('error', error => console.log(error));
 
     socket.on('board', board => updateOpponentBoard(board));
@@ -44,7 +47,7 @@ const clientConnection = addWord => {
       if (status === LOSE_STATUS) {
         winGame();
       }
-    })
+    });
   };
 
   const sendReady = ready => {
@@ -58,10 +61,14 @@ const clientConnection = addWord => {
   const sendMessage = message => {
     socket.emit('msg', message);
   };
-  
+
   const sendGameStatus = status => {
-    socket.emit('status', status)
-  }
+    socket.emit('status', status);
+  };
+
+  const sendRows = rows => {
+    socket.emit('rows', rows);
+  };
 
   const getSocket = () => socket;
 
@@ -75,7 +82,11 @@ const clientConnection = addWord => {
 
   const setWinGame = callback => {
     winGame = callback;
-  }
+  };
+
+  const setReceiveRows = receiveCallback => {
+    recieveRows = receiveCallback
+  };
 
   const isOpponentConnected = () => opponentConnected;
 
@@ -86,9 +97,11 @@ const clientConnection = addWord => {
     sendMessage,
     sendBoard,
     sendGameStatus,
+    sendRows,
     setOpponentBoardUpdater,
     setReadyOpponent,
     setWinGame,
+    setReceiveRows,
     isOpponentConnected
   };
 };

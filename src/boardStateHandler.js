@@ -1,11 +1,4 @@
-// Creates an array from to, including to
-// To make things confusing, it cuts out negative values
-// becuase in this case those are outside the board (i.e. above it)
-const range = (from, to) =>
-  Array(to + 1 - from)
-    .fill(from)
-    .map((fromValue, i) => fromValue + i)
-    .filter(value => value >= 0);
+import { range } from './util';
 
 const boardStateHandler = (rows, cols, endMatchCallback, matchEndrow = 0) => {
   const rowWidth = cols;
@@ -260,16 +253,20 @@ const boardStateHandler = (rows, cols, endMatchCallback, matchEndrow = 0) => {
     droppingWords = [];
   };
 
-  const addRow = row => {
-    const board = wordBoard.slice(1);
-    let trimmedRow = row.slice(0, rowWidth);
-    if (row.length < rowWidth) {
-      trimmedRow = row.concat('x'.repeat(rowWidth - row.length));
-    }
-    board.push(trimmedRow);
-    const updatedAdded = completedRows.added.map(rowIndex => rowIndex - 1);
-    const updatedCompletes = completedRows.completed.map(rowIndex => rowIndex - 1);
-    updatedAdded.unshift(wordBoard.length - 1);
+  const addRows = newRows => {
+    const nRows = newRows.length
+    const board = wordBoard.slice(nRows);
+    newRows.forEach(row => {
+      let trimmedRow = row.slice(0, rowWidth);
+      if (row.length < rowWidth) {
+        trimmedRow = row.concat('x'.repeat(rowWidth - row.length));
+      }
+      board.push(trimmedRow);
+    })
+
+    const addedRowsUntil = wordBoard.length - (nRows + completedRows.added.length)
+    const updatedAdded = range(addedRowsUntil, wordBoard.length - 1).reverse();
+    const updatedCompletes = completedRows.completed.map(rowIndex => rowIndex - nRows);
 
     setCompletedRows(updatedCompletes, updatedAdded);
     updateWordBoard(board);
@@ -292,7 +289,7 @@ const boardStateHandler = (rows, cols, endMatchCallback, matchEndrow = 0) => {
     rotateWord,
     dropWord,
     clearDroppingWords,
-    addRow,
+    addRows,
     getCompletedRows
   };
 };

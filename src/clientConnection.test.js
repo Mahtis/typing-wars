@@ -77,7 +77,12 @@ describe('clientConnection', () => {
         expect(socketMock.emit).toHaveBeenCalledWith('status', 'lost');
     });
     
+    it('can send a row adding message', () => {
+      connection.sendRows(['some-row', 'some-other-row']);
 
+      expect(socketMock.emit).toHaveBeenCalledWith('rows', ['some-row', 'some-other-row']);
+    })
+    
 
 
     

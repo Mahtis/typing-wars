@@ -705,7 +705,7 @@ describe('gameState', () => {
   describe('adding rows', () => {
     it('adds the given row to the bottom of the board', () => {
       gameState.setWordBoard(EMPTY_BOARD, []);
-      gameState.addRow('12345678901234567890');
+      gameState.addRows(['12345678901234567890']);
 
       expect(gameState.getWordBoard()).toEqual([
         '                    ',
@@ -723,7 +723,7 @@ describe('gameState', () => {
 
     it('moves all existing rows one row up', () => {
       gameState.setWordBoard(BOARD_WITH_WORDS, []);
-      gameState.addRow('12345678901234567890');
+      gameState.addRows(['12345678901234567890']);
 
       expect(gameState.getWordBoard()).toEqual([
         '                    ',
@@ -741,7 +741,7 @@ describe('gameState', () => {
 
     it('given the added row is too long, adds only part that fits on board', () => {
       gameState.setWordBoard(EMPTY_BOARD, []);
-      gameState.addRow('12345678901234567890toolong');
+      gameState.addRows(['12345678901234567890toolong']);
 
       expect(gameState.getWordBoard()).toEqual([
         '                    ',
@@ -759,7 +759,7 @@ describe('gameState', () => {
 
     it('given the added row is too short, adds enogugh xs to fit the board', () => {
       gameState.setWordBoard(EMPTY_BOARD, []);
-      gameState.addRow('12');
+      gameState.addRows(['12']);
 
       expect(gameState.getWordBoard()).toEqual([
         '                    ',
@@ -791,8 +791,10 @@ describe('gameState', () => {
           ' yyyyyyyyyyyyyyyyyyy',
           ' xxxxxxxxxxxxxxxxxxx'
         ],
-        [{ word: 'y', orientation: 'HORIZONTAL', char: 0, row: 9 },
-        { word: 'x', orientation: 'HORIZONTAL', char: 0, row: 7 }]
+        [
+          { word: 'y', orientation: 'HORIZONTAL', char: 0, row: 9 },
+          { word: 'x', orientation: 'HORIZONTAL', char: 0, row: 7 }
+        ]
       );
     });
 
@@ -821,13 +823,13 @@ describe('gameState', () => {
         added: []
       });
     });
-    
-    describe('when a row is added to board', () => {
+
+    describe('when rows are added to board', () => {
       beforeEach(() => {
         gameState.moveWordsDown();
         gameState.moveWordsDown();
-    
-        gameState.addRow('12345');
+
+        gameState.addRows(['12345']);
       });
 
       it('returns one added and shifts completed rows correctly by one', () => {
@@ -837,12 +839,31 @@ describe('gameState', () => {
         });
       });
 
-      it('when a second row is added, shifts the added rows as well by one', () => {
-        gameState.addRow('somerow');
+      describe('when additional rows are added', () => {
+        beforeEach(() => {
+          gameState.addRows(['somerow', 'otherrow']);
+        });
 
-        expect(gameState.getCompletedRows()).toEqual({
-          completed: [7, 6],
-          added: [9, 8]
+        it('shifts the added rows as well by one', () => {
+          expect(gameState.getCompletedRows()).toEqual({
+            completed: [6, 5],
+            added: [9, 8, 7]
+          });
+        });
+
+        it('board is correctly formatted', () => {
+          expect(gameState.getWordBoard()).toEqual([
+          '                    ',
+          '                    ',
+          '                    ',
+          '                    ',
+          '                    ',
+          'xyyyyyyyyyyyyyyyyyyy',
+          'yxxxxxxxxxxxxxxxxxxx',
+          '12345xxxxxxxxxxxxxxx',
+          'somerowxxxxxxxxxxxxx',
+          'otherrowxxxxxxxxxxxx'
+          ]);
         });
       });
     });
@@ -861,9 +882,11 @@ describe('gameState', () => {
           ' yyyyyyyyyyyyyyyyyyy',
           ' xxxxxxxxxxxxxxxxxxx'
         ],
-        [{ word: 'y', orientation: 'HORIZONTAL', char: 0, row: 9 },
-        { word: 'x', orientation: 'HORIZONTAL', char: 0, row: 8 },
-        { word: 'z', orientation: 'HORIZONTAL', char: 0, row: 7 }]
+        [
+          { word: 'y', orientation: 'HORIZONTAL', char: 0, row: 9 },
+          { word: 'x', orientation: 'HORIZONTAL', char: 0, row: 8 },
+          { word: 'z', orientation: 'HORIZONTAL', char: 0, row: 7 }
+        ]
       );
 
       gameState.moveWordsDown();
@@ -873,6 +896,5 @@ describe('gameState', () => {
         added: []
       });
     });
-    
   });
 });

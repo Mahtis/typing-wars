@@ -100,7 +100,11 @@ io.on('connection', socket => {
 
     socket.on('status', status => {
       socket.to(room).emit('status', status);
-    })
+    });
+
+    socket.on('rows', rows => {
+      socket.to(room).emit('rows', rows);
+    });
   });
 });
 

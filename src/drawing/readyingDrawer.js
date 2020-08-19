@@ -3,10 +3,12 @@ export default ctx => {
 
   const draw = (playerReady, opponentReady) => {
     const origFill = ctx.fillStyle;
+    const origFont = ctx.font;
+
     ctx.clearRect(0, 0, width, height);
     ctx.fillStyle = 'black';
     ctx.fillText(
-      "Press Enter os Space when you're ready to start",
+      "Press Enter or Space when you're ready to start",
       width / 2,
       height / 2
     );
@@ -37,6 +39,7 @@ export default ctx => {
     );
     
     ctx.fillStyle = origFill;
+    ctx.font = origFont;
   };
 
   return { draw };

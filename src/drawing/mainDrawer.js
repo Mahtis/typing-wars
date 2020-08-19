@@ -1,6 +1,9 @@
 import { BACKEND_URL } from '../util';
+import { loadSprites, loadAnimationSprites } from './drawHelper';
 import wordBoardDrawer from './wordBoardDrawer';
+import Animation from './Animation';
 import tilemapData from './tilemapData.json';
+import animationSpriteData from './animationSpriteData.json';
 
 const TILESET_FILE = 'tileset.png';
 const BACKGROUND_IMG = 'background.png';
@@ -17,39 +20,20 @@ const drawerHelper = async () => {
 
   const ctx = canvas.getContext('2d');
 
-  const sprites = await loadTileset();
+  const tileset = await loadTileset();
+
+  const sprites = await loadSprites(tileset, tilemapData);
+
+  const animationSprites = await loadAnimationSprites(
+    tileset,
+    animationSpriteData
+  );
+
+  // const animations = createAnimations(animationSprites);
 
   const background = await loadBackground();
 
-  const drawFromTilemap = (
-    tile,
-    x,
-    y,
-    width = GAMEBOARD_TILE_WIDTH,
-    height = GAMEBOARD_TILE_WIDTH,
-    drawCtx = ctx
-  ) => {
-    const img = tilemapData[tile];
-    drawCtx.drawImage(
-      sprites[tile],
-      0,
-      0,
-      img.width,
-      img.height,
-      x,
-      y,
-      width,
-      height
-    );
-  };
-
-  const drawSprite = (
-    spriteName,
-    x,
-    y,
-    scale = 1,
-    drawCtx = ctx
-  ) => {
+  const drawSprite = (spriteName, x, y, scale = 1, drawCtx = ctx) => {
     const sprite = sprites[spriteName];
     drawCtx.drawImage(
       sprite,
@@ -62,7 +46,7 @@ const drawerHelper = async () => {
       sprite.width * scale,
       sprite.height * scale
     );
-  }
+  };
 
   const wordboard = await wordBoardDrawer(30, 20, drawSprite, 1);
   sprites.wordboard = wordboard;
@@ -86,62 +70,31 @@ const drawerHelper = async () => {
 
   const getSprite = sprite => sprites[sprite];
 
-  const drawBgTile = (x, y) => {
-    drawFromTilemap('bgBoardTile', x, y);
+  const addRows = (rowIndexes) => {
+    wordboard.addRowAnimations(Animation(animationSprites.explosion), rowIndexes);
   };
 
-  const drawCharTile = (char, x, y, scale = 1) => {
-    drawSprite('charBoardTile', x, y, scale);
-
-    if (char) {
-      const origFont = ctx.font;
-      const origFill = ctx.fillStyle;
-
-      ctx.font = CHAR_TILE_FONT_SIZE * scale + 'px ' + CHAR_TILE_FONT;
-      ctx.fillStyle = '#2c2626'
-      // 6 and 16 pixels to set the letter in the middle of the tile
-      ctx.fillText(char, CHAR_TILE_X_OFFSET * scale + x, CHAR_TILE_Y_OFFSET * scale + y);
-
-      ctx.font = origFont;
-      ctx.fillStyle = origFill;
-    };
+  const completeRows = (rowIndexes) => {
+    wordboard.addRowAnimations(Animation(animationSprites.shine), rowIndexes)
   };
 
-  const drawWordboard = (x, y, words) => {
-    drawSprite('wordboard', x, y);
-    
-    drawBoardCharacterTiles(words, x, y, 1)
+  const drawWordboard = (x, y, words, completedRows) => {
+    wordboard.draw(ctx, x, y, words, completedRows);
   };
 
-  const drawOpponentBoard = (x, y, words) => {
-    drawSprite('opponentBoard', x, y);
-
-    drawBoardCharacterTiles(words, x, y, 0.3);
+  const drawOpponentBoard = (
+    x,
+    y,
+    words,
+    completedRows = { completed: [], added: [] }
+  ) => {
+    opponentBoard.draw(ctx, x, y, words, completedRows);
   };
-
-  const drawBoardCharacterTiles = (words, x, y, scale = 1) => {
-    const tileSize = GAMEBOARD_TILE_WIDTH * scale
-    const xOffset = x + tileSize;
-    const yOffset = y + tileSize;
-
-    words.forEach((row, i) => {
-      [...row].forEach((char, j) => {
-        if (char !== ' ') {
-          drawCharTile(
-            char,
-            xOffset + j * tileSize,
-            yOffset + i * tileSize,
-            scale
-          );
-        }
-      });
-    });
-  }
 
   return {
+    addRows,
+    completeRows,
     drawBackground,
-    drawBgTile,
-    drawCharTile,
     getSprite,
     drawWordboard,
     drawOpponentBoard
@@ -154,60 +107,24 @@ const loadTileset = async () => {
   tileset.crossOrigin = 'Anonymous';
   await tileset.decode();
 
-  const sprites = loadSprites(tileset, tilemapData);
-  return sprites;
+  return tileset;
 };
-
-const loadSprites = async (tileset, tilemapData) => {
-  const spriteArray = await Promise.all(
-    Object.keys(tilemapData).map(async key => {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      const img = tilemapData[key];
-
-      canvas.width = img.width;
-      canvas.height = img.height;
-
-      ctx.drawImage(
-        tileset,
-        img.x,
-        img.y,
-        img.width,
-        img.height,
-        0,
-        0,
-        img.width,
-        img.height
-      );
-
-      const sprite = await loadImage(canvas);
-      return { name: key, sprite };
-    })
-  );
-
-  const sprites = spriteArray.reduce(
-    (obj, item) => ((obj[item.name] = item.sprite), obj),
-    {}
-  );
-
-  return sprites;
-};
-
-const loadImage = canvas =>
-  new Promise((resolve, reject) => {
-    let sprite = new Image();
-    sprite.onload = () => {
-      resolve(sprite);
-    };
-    sprite.onerror = reject;
-    sprite.src = canvas.toDataURL();
-  });
 
 const loadBackground = async () => {
   const bg = new Image();
   bg.src = BACKEND_URL + '/' + BACKGROUND_IMG;
   await bg.decode();
   return bg;
+};
+
+const createAnimations = animationSprites => {
+  return Object.keys(animationSprites).reduce(
+    (allAnimations, currAnimation) => {
+      allAnimations[currAnimation] = Animation(animationSprites[currAnimation]);
+      return allAnimations;
+    },
+    {}
+  );
 };
 
 export default drawerHelper;

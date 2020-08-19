@@ -37,9 +37,8 @@ const gameBoard = (canvas, stringState, boardStateHandler, drawHelper) => {
     ctx.fillStyle = DEFAULT_COLOUR;
   };
 
-  const drawWordBoard = ctx => {
-    const wordBoard = boardStateHandler.getWordBoard();
-    drawHelper.drawWordboard(20, 20, wordBoard);
+  const drawWordBoard = (wordboard, completedRows) => {
+    drawHelper.drawWordboard(20, 20, wordboard, completedRows);
   };
 
   const drawOpponentBoard = ctx => {
@@ -77,10 +76,10 @@ const gameBoard = (canvas, stringState, boardStateHandler, drawHelper) => {
     });
   };
 
-  const draw = () => {
+  const draw = (wordboard, completedRows) => {
     const ctx = canvas.getContext('2d');
     drawGameArea(ctx);
-    drawWordBoard(ctx);
+    drawWordBoard(wordboard, completedRows);
     drawOpponentBoard(ctx);
     drawText(ctx);
   };

@@ -10,6 +10,7 @@ import readyingDrawer from './drawing/readyingDrawer';
 import waitingOpponentDrawer from './drawing/waitingOpponentDrawer';
 import _scoreDrawer from './drawing/scoreDrawer';
 import drawHelper from './drawing/mainDrawer';
+import { range } from './util';
 
 const FALL_SPEED = 500;
 const BOARD_ROWS = 30;
@@ -34,13 +35,13 @@ const startGame = async () => {
 
   const loseMatch = () => {
     console.log('I LOSE!!!');
-    
+
     gameState = 'LOST';
   };
 
   const winMatch = () => {
-    gameState = "WON";
-  }
+    gameState = 'WON';
+  };
 
   const boardState = boardStateHandler(BOARD_ROWS, BOARD_COLS, loseMatch, 0);
   const connection = clientConnection(boardState.addWord);
@@ -54,12 +55,19 @@ const startGame = async () => {
 
   const canvas = document.getElementById('game');
 
-  const helper = await drawHelper()
+  const helper = await drawHelper();
 
   const board = gameBoard(canvas, typingState, boardState, helper);
 
   board.initBoard();
-  
+
+  const addRowsCallback = rows => {
+    boardState.addRows(rows);
+    // range() "to" is inclusive,
+    // so that is taken into account using BOARD_ROWS in "to" without the -1 
+    helper.addRows(range(BOARD_ROWS - rows.length, BOARD_ROWS - 1));
+  };
+
   const startSequence = startSequenceDrawer(
     canvas.getContext('2d'),
     startMatch
@@ -68,30 +76,32 @@ const startGame = async () => {
   const readyDrawer = readyingDrawer(canvas.getContext('2d'));
   const waitOpponentDrawer = waitingOpponentDrawer(canvas.getContext('2d'));
   const scoreDrawer = _scoreDrawer(canvas.getContext('2d'), score);
-  
+
   const setPlayerReady = () => {
     playerReady = !playerReady;
     connection.sendReady(playerReady);
   };
-  
+
   const setOpponentReady = readyStatus => {
-      opponentReady = readyStatus;
+    opponentReady = readyStatus;
   };
-  
+
   connection.setOpponentBoardUpdater(board.updateOpponentBoard);
   connection.setReadyOpponent(setOpponentReady);
   connection.setWinGame(winMatch);
-  
+  connection.setReceiveRows(addRowsCallback);
+
   document.addEventListener('keydown', handler.readyKeyHandler(setPlayerReady));
 
   let lastMoveDown = Date.now();
+  let lastCompleted = [];
 
   const gameLoop = () => {
     switch (gameState) {
       case 'CONNECTED':
         // wait for everything to be set up and opponent has connected
         waitOpponentDrawer.draw();
-        if(connection.isOpponentConnected()) {
+        if (connection.isOpponentConnected()) {
           beginReadying();
         }
         break;
@@ -103,7 +113,7 @@ const startGame = async () => {
         readyDrawer.draw(playerReady, opponentReady);
         if (playerReady && opponentReady) {
           beginStartSequence();
-          
+
           document.removeEventListener(
             'keydown',
             handler.readyKeyHandler(setPlayerReady)
@@ -122,12 +132,29 @@ const startGame = async () => {
       case 'PLAYING':
         // actual game loop
         const currentTime = Date.now();
+        const wordboard = boardState.getWordBoard();
         if (currentTime >= lastMoveDown + FALL_SPEED) {
           boardState.moveWordsDown();
-          connection.sendBoard(boardState.getWordBoard());
+          connection.sendBoard(wordboard);
           lastMoveDown = currentTime;
         }
-        board.draw();
+
+        const { added, completed } = boardState.getCompletedRows();
+
+        if (completed.length > lastCompleted.length) {
+          boardState.clearDroppingWords();
+          const newRows = completed.slice(lastCompleted.length, completed.length);
+
+          const rowsToSend = wordboard.filter((row, i) => newRows.includes(i));
+
+          connection.sendRows(rowsToSend);
+
+          helper.completeRows(newRows);
+
+          lastCompleted = [...completed];
+        }
+
+        board.draw(wordboard, { completed, added });
         scoreDrawer.draw();
         break;
       case 'LOST':
