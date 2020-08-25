@@ -1,3 +1,4 @@
+import SpriteProvider from './drawing/SpriteProvider';
 import clientConnection from './clientConnection';
 import keyHandler from './keyHandler';
 import gameBoard from './gameBoard';
@@ -20,6 +21,8 @@ const startGame = async () => {
   let gameState = 'CONNECTED';
   let playerReady = false;
   let opponentReady = false;
+
+  await SpriteProvider.init();
 
   const beginReadying = () => {
     gameState = 'READYING';
