@@ -6,11 +6,22 @@ describe('Hitbox', () => {
   it('should return hitbox coordinates correctly', () => {
     hitbox = Hitbox({ x: 20, y: 40 }, 20, 20);
 
-    expect(hitbox.getHitboxCoordinates()).toEqual({
+    expect(hitbox.getHitboxLocation()).toEqual({
       startX: 20,
       endX: 40,
       startY: 40,
       endY: 60
+    });
+  });
+
+  it('should return hitbox coordinates for new location correctly', () => {
+    hitbox = Hitbox({ x: 20, y: 40 }, 20, 20);
+
+    expect(hitbox.getHitboxForNewLocation(50, 50)).toEqual({
+      startX: 50,
+      endX: 70,
+      startY: 50,
+      endY: 70
     });
   });
 
@@ -33,7 +44,7 @@ describe('Hitbox', () => {
 
     hitbox = Hitbox({ x: 0, y: 30 }, 100, 20);
 
-    expect(hitbox.isObjectIntersecting(otherHitbox)).toBe(true);
+    expect(hitbox.isObjectIntersecting(otherHitbox.getHitboxLocation())).toBe(true);
   });
 
   it('if other hitbox is above checking hitbox, returns false', () => {
@@ -41,7 +52,7 @@ describe('Hitbox', () => {
 
     hitbox = Hitbox({ x: 20, y: 20 }, 20, 20);
 
-    expect(hitbox.isObjectIntersecting(otherHitbox)).toBe(false);
+    expect(hitbox.isObjectIntersecting(otherHitbox.getHitboxLocation())).toBe(false);
   });
 
   it('if other hitbox is below checking hitbox, returns false', () => {
@@ -49,7 +60,7 @@ describe('Hitbox', () => {
 
     hitbox = Hitbox({ x: 20, y: 20 }, 20, 20);
 
-    expect(hitbox.isObjectIntersecting(otherHitbox)).toBe(false);
+    expect(hitbox.isObjectIntersecting(otherHitbox.getHitboxLocation())).toBe(false);
   });
 
   it('if other hitbox is left of checking hitbox, returns false', () => {
@@ -57,7 +68,7 @@ describe('Hitbox', () => {
 
     hitbox = Hitbox({ x: 20, y: 40 }, 20, 20);
 
-    expect(hitbox.isObjectIntersecting(otherHitbox)).toBe(false);
+    expect(hitbox.isObjectIntersecting(otherHitbox.getHitboxLocation())).toBe(false);
   });
 
   it('if other hitbox is right of checking hitbox, returns false', () => {
@@ -65,7 +76,7 @@ describe('Hitbox', () => {
 
     hitbox = Hitbox({ x: 20, y: 40 }, 20, 20);
 
-    expect(hitbox.isObjectIntersecting(otherHitbox)).toBe(false);
+    expect(hitbox.isObjectIntersecting(otherHitbox.getHitboxLocation())).toBe(false);
   });
 
   it('if the original location moves, so does the hitbox, missing -> hitting', () => {
@@ -74,11 +85,11 @@ describe('Hitbox', () => {
     let location = { x: 20, y: 40 };
     hitbox = Hitbox(location, 20, 20);
 
-    expect(hitbox.isObjectIntersecting(otherHitbox)).toBe(false);
+    expect(hitbox.isObjectIntersecting(otherHitbox.getHitboxLocation())).toBe(false);
 
     location.x = 30;
 
-    expect(hitbox.isObjectIntersecting(otherHitbox)).toBe(true);
+    expect(hitbox.isObjectIntersecting(otherHitbox.getHitboxLocation())).toBe(true);
   });
 
   it('if the original location moves, so does the hitbox, hitting -> missing', () => {
@@ -87,10 +98,10 @@ describe('Hitbox', () => {
     let location = { x: 30, y: 40 };
     hitbox = Hitbox(location, 20, 20);
 
-    expect(hitbox.isObjectIntersecting(otherHitbox)).toBe(true);
+    expect(hitbox.isObjectIntersecting(otherHitbox.getHitboxLocation())).toBe(true);
 
     location.x = 20;
 
-    expect(hitbox.isObjectIntersecting(otherHitbox)).toBe(false);
+    expect(hitbox.isObjectIntersecting(otherHitbox.getHitboxLocation())).toBe(false);
   });
 });

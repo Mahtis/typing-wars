@@ -3,8 +3,8 @@ const Hitbox = (location, initialWidth, initialHeight) => {
   let height = initialHeight;
 
   // googled it SeemsGood
-  const isObjectIntersecting = otherHitbox => {
-    const { startX, endX, startY, endY } = otherHitbox.getHitboxCoordinates();
+  const isObjectIntersecting = otherHitboxLocation => {
+    const { startX, endX, startY, endY } = otherHitboxLocation;
     if (
       location.x < endX &&
       location.x + width > startX &&
@@ -28,7 +28,7 @@ const Hitbox = (location, initialWidth, initialHeight) => {
     return false;
   };
 
-  const getHitboxCoordinates = () => {
+  const getHitboxLocation = () => {
     return {
       startX: location.x,
       endX: location.x + width,
@@ -37,10 +37,18 @@ const Hitbox = (location, initialWidth, initialHeight) => {
     };
   };
 
+  const getHitboxForNewLocation = (x, y) => ({
+    startX: x,
+    endX: x + width,
+    startY: y,
+    endY: y + height
+  });
+
   return {
     isObjectIntersecting,
     isLocationIntersecting,
-    getHitboxCoordinates
+    getHitboxLocation,
+    getHitboxForNewLocation
   };
 };
 

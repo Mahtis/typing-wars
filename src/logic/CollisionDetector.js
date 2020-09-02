@@ -1,8 +1,5 @@
-const CollisionDetector = (colsOnBoard, rowsOnBoard) => {
+const CollisionDetector = (boardWidth, boardHeight) => {
   let collisionObjects = [];
-
-  const nCols = colsOnBoard;
-  const nRows = rowsOnBoard;
 
   const addCollisionObject = object => {
     collisionObjects.push(object);
@@ -14,14 +11,14 @@ const CollisionDetector = (colsOnBoard, rowsOnBoard) => {
     );
   };
 
-  const isOutsideBoard = (cols, rows) => {
-    if (cols[0] < 0) return true;
+  const isOutsideBoard = (startX, endX, startY, endY) => {
+    if (startX < 0) return true;
 
-    if (cols[cols.length - 1] >= nCols) return true;
+    if (endX > boardWidth) return true;
 
-    if (rows[rows.length - 1] < 0) return true;
+    if (startY < 0) return true;
 
-    if (rows[0] >= nRows) return true;
+    if (endY > boardHeight) return true;
 
     return false;
   };
@@ -35,28 +32,21 @@ const CollisionDetector = (colsOnBoard, rowsOnBoard) => {
     return false;
   };
 
-  const checkCollision = object => {
-    const { cols, rows } = object.getLocation();
+  const checkCollision = (hitboxLocation, id) => {
+    const { startX, endX, startY, endY } = hitboxLocation;
 
-    if (isOutsideBoard(cols, rows)) return true;
+    if (isOutsideBoard(startX, endX, startY, endY)) return true;
 
     for (let i = 0; i < collisionObjects.length; i += 1) {
       const otherObj = collisionObjects[i];
 
-      if (otherObj === object) continue;
+      if (otherObj.getId() === id) continue;
 
-      if (!otherObj.isCollidable() && !object.isCollidable()) {
-        return false;
-      }
+      // if (!otherObj.isCollidable() && !object.isCollidable()) {
+      //   return false;
+      // }
 
-      const { cols: otherCols, rows: otherRows } = otherObj.getLocation();
-
-      if (
-        areArraysColliding(cols, otherCols) &&
-        areArraysColliding(rows, otherRows)
-      ) {
-        return true;
-      }
+      if (otherObj.isObjectColliding(hitboxLocation)) return true;
     }
 
     return false;
