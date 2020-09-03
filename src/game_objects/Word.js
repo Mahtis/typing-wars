@@ -1,5 +1,4 @@
 import SpriteProvider from '../drawing/SpriteProvider';
-import { range } from '../util';
 import Hitbox from '../logic/Hitbox';
 
 const CHAR_SPRITE = 'charBoardTile';
@@ -8,19 +7,11 @@ const tileSize = 20;
 const Word = (word, initialRow, initialCol, id, collisionDetector) => {
   const sprite = SpriteProvider.getSprite(CHAR_SPRITE);
 
-  let cols = range(initialCol, initialCol + word.length - 1);
-  let rows = [initialRow];
-
   const location = { x: initialCol * tileSize, y: initialRow * tileSize };
 
   const hitbox = Hitbox(location, tileSize * word.length, tileSize);
 
   let status = 'MOVING';
-
-  const move = ({ cols: newCols, rows: newRows }) => {
-    cols = newCols;
-    rows = newRows;
-  };
 
   const getId = () => id;
 
@@ -33,14 +24,16 @@ const Word = (word, initialRow, initialCol, id, collisionDetector) => {
   const moveTo = (newX, newY) => {
     const newLocation = hitbox.getHitboxForNewLocation(newX, newY);
 
-    const collision = collisionDetector.checkCollision(newLocation, id);
+    if (collisionDetector.isOutsideBoard(newLocation)) return false;
 
-    if (!collision) {
+    const collisionObjects = collisionDetector.checkCollision(newLocation, id);
+
+    if (collisionObjects.length === 0) {
       location.x = newLocation.startX;
       location.y = newLocation.startY
     }
 
-    return !collision;
+    return collisionObjects.length === 0;
   }
 
   const moveUp = () => {};
@@ -73,6 +66,10 @@ const Word = (word, initialRow, initialCol, id, collisionDetector) => {
     return moveTo(newX, newY);
   };
 
+  const checkLeft = () => {};
+
+  const checkRight = () => {};
+
   const getStatus = () => status;
 
   const getLocation = () => location;
@@ -82,7 +79,6 @@ const Word = (word, initialRow, initialCol, id, collisionDetector) => {
   };
 
   return {
-    move,
     moveUp,
     getId,
     getWord,

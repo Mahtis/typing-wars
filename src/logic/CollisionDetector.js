@@ -11,7 +11,9 @@ const CollisionDetector = (boardWidth, boardHeight) => {
     );
   };
 
-  const isOutsideBoard = (startX, endX, startY, endY) => {
+  const isOutsideBoard = (hitboxLocation) => {
+    const { startX, endX, startY, endY } = hitboxLocation;
+
     if (startX < 0) return true;
 
     if (endX > boardWidth) return true;
@@ -23,33 +25,20 @@ const CollisionDetector = (boardWidth, boardHeight) => {
     return false;
   };
 
-  const areArraysColliding = (array1, array2) => {
-    for (let i = 0; i < array1.length; i += 1) {
-      const value = array1[i];
-      if (array2.includes(value)) return true;
-    }
-
-    return false;
-  };
-
   const checkCollision = (hitboxLocation, id) => {
-    const { startX, endX, startY, endY } = hitboxLocation;
-
-    if (isOutsideBoard(startX, endX, startY, endY)) return true;
+    const collidingObjects = [];
 
     for (let i = 0; i < collisionObjects.length; i += 1) {
       const otherObj = collisionObjects[i];
 
       if (otherObj.getId() === id) continue;
 
-      // if (!otherObj.isCollidable() && !object.isCollidable()) {
-      //   return false;
-      // }
-
-      if (otherObj.isObjectColliding(hitboxLocation)) return true;
+      if (otherObj.isObjectColliding(hitboxLocation)) {
+        collidingObjects.push(otherObj);
+      };
     }
 
-    return false;
+    return collidingObjects;
   };
 
   const getCollisionObjects = () => collisionObjects;
@@ -58,6 +47,7 @@ const CollisionDetector = (boardWidth, boardHeight) => {
     addCollisionObject,
     removeCollisionObject,
     getCollisionObjects,
+    isOutsideBoard,
     checkCollision
   };
 };

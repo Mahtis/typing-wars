@@ -27,13 +27,13 @@ describe('CollisionDetector', () => {
     expect(collisionDetector.getCollisionObjects()).toEqual([{ b: 2 }]);
   });
 
-  describe('checking collision', () => {
+  describe('checking if is object outside board', () => {
     it('if object is going outside from left side of board, returns collision', () => {
       const collidingHitbox = {
         getHitbox: () => ({ startX: -1, endX: 2, startY: 3, endY: 4 })
       };
 
-      const collision = collisionDetector.checkCollision({
+      const collision = collisionDetector.isOutsideBoard({
         startX: -1,
         endX: 2,
         startY: 3,
@@ -48,7 +48,7 @@ describe('CollisionDetector', () => {
         getHitbox: () => ({ startX: 8, endX: 11, startY: 3, endY: 4 })
       };
 
-      const collision = collisionDetector.checkCollision({
+      const collision = collisionDetector.isOutsideBoard({
         startX: 8,
         endX: 11,
         startY: 3,
@@ -63,7 +63,7 @@ describe('CollisionDetector', () => {
         getHitbox: () => ({ startX: 8, endX: 10, startY: -1, endY: 4 })
       };
 
-      const collision = collisionDetector.checkCollision({
+      const collision = collisionDetector.isOutsideBoard({
         startX: 8,
         endX: 10,
         startY: -1,
@@ -78,7 +78,7 @@ describe('CollisionDetector', () => {
         getHitbox: () => ({ startX: 0, endX: 10, startY: 10, endY: 11 })
       };
 
-      const collision = collisionDetector.checkCollision({
+      const collision = collisionDetector.isOutsideBoard({
         startX: 0,
         endX: 10,
         startY: 10,
@@ -96,13 +96,13 @@ describe('CollisionDetector', () => {
         getHitbox: () => ({ startX: 0, endX: 10, startY: 0, endY: 1 })
       };
 
-      const collision1 = collisionDetector.checkCollision({
+      const collision1 = collisionDetector.isOutsideBoard({
         startX: 0,
         endX: 10,
         startY: 9,
         endY: 10
       });
-      const collision2 = collisionDetector.checkCollision({
+      const collision2 = collisionDetector.isOutsideBoard({
         startX: 0,
         endX: 10,
         startY: 0,
@@ -112,57 +112,83 @@ describe('CollisionDetector', () => {
       expect(collision1).toBe(false);
       expect(collision2).toBe(false);
     });
+  });
 
-    describe('when checking if object is colliding with another', () => {
-      let collidingObject;
+  describe('checking collision', () => {
+    let collidingObject;
 
-      beforeEach(() => {
-        collidingObject = {
-          getHitbox: () => ({ startX: 0, endX: 3, startY: 3, endY: 4 }),
-          getId: () => 'some-id'
-        };
+    beforeEach(() => {
+      collidingObject = {
+        getHitbox: () => ({ startX: 0, endX: 3, startY: 3, endY: 4 }),
+        getId: () => 'some-id'
+      };
 
-        collisionDetector.addCollisionObject(collidingObject);
-      });
+      collisionDetector.addCollisionObject(collidingObject);
+    });
 
-      it('returns false if the colliding object has the same id', () => {
-        const collision = collisionDetector.checkCollision(
-          { startX: 0, endX: 3, startY: 3, endY: 4 },
-          'some-id'
-        );
+    it('returns an empty array if the colliding object has the same id', () => {
+      const collision = collisionDetector.checkCollision(
+        { startX: 0, endX: 3, startY: 3, endY: 4 },
+        'some-id'
+      );
 
-        expect(collision).toBe(false);
-      });
+      expect(collision).toEqual([]);
+    });
 
-      it('returns collision if it is colliding with another, collidable object', () => {
-        const anotherObject = {
-          isObjectColliding: () => true,
-          getId: () => 'some-other-id'
-        };
-        collisionDetector.addCollisionObject(anotherObject);
+    it('if it is colliding with another object, returns array with that object', () => {
+      const anotherObject = {
+        isObjectColliding: () => true,
+        getId: () => 'some-other-id'
+      };
+      collisionDetector.addCollisionObject(anotherObject);
 
-        const collision = collisionDetector.checkCollision(
-          { startX: 0, endX: 3, startY: 3, endY: 4 },
-          'some-id'
-        );
+      const collision = collisionDetector.checkCollision(
+        { startX: 0, endX: 3, startY: 3, endY: 4 },
+        'some-id'
+      );
 
-        expect(collision).toBe(true);
-      });
+      expect(collision).toEqual([anotherObject]);
+    });
 
-      it('does not return collision if it is not colliding with another, collidable object', () => {
-        const anotherObject = {
-          isObjectColliding: () => false,
-          getId: () => 'some-other-id'
-        };
-        collisionDetector.addCollisionObject(anotherObject);
+    it('if it is colliding with multiple objects, returns array with all colliding objects', () => {
+      const anotherObject = {
+        isObjectColliding: () => true,
+        getId: () => 'some-other-id'
+      };
+      const yetAnotherObject = {
+        isObjectColliding: () => true,
+        getId: () => 'some-other-2-id'
+      };
+      const nonCollidingObject = {
+        isObjectColliding: () => false,
+        getId: () => 'some-other-3-id'
+      };
+      
+      collisionDetector.addCollisionObject(anotherObject);
+      collisionDetector.addCollisionObject(yetAnotherObject);
+      collisionDetector.addCollisionObject(nonCollidingObject);
 
-        const collision = collisionDetector.checkCollision(
-          { startX: 0, endX: 3, startY: 3, endY: 4 },
-          'some-id'
-        );
+      const collision = collisionDetector.checkCollision(
+        { startX: 0, endX: 3, startY: 3, endY: 4 },
+        'some-id'
+      );
 
-        expect(collision).toBe(false);
-      });
+      expect(collision).toEqual([anotherObject, yetAnotherObject]);
+    });
+
+    it('if it is not colliding with another object, returns empty array', () => {
+      const anotherObject = {
+        isObjectColliding: () => false,
+        getId: () => 'some-other-id'
+      };
+      collisionDetector.addCollisionObject(anotherObject);
+
+      const collision = collisionDetector.checkCollision(
+        { startX: 0, endX: 3, startY: 3, endY: 4 },
+        'some-id'
+      );
+
+      expect(collision).toEqual([]);
     });
   });
 });
