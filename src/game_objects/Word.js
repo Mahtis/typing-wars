@@ -70,8 +70,17 @@ const Word = (word, initialRow, initialCol, id, collisionDetector) => {
     return moveTo(newX, newY);
   };
 
+  // Maybe a bit antipattern to do and undo a move
+  // But it's simple and works, so for now it's good enough
   const rotate = () => {
     hitbox.rotate();
+
+    if (
+      collisionDetector.isOutsideBoard(getHitbox()) ||
+      collisionDetector.checkCollision(getHitbox(), id).length !== 0
+    ) {
+      hitbox.rotate();
+    }
   };
 
   const checkLocation = (x, y) => {
@@ -95,7 +104,7 @@ const Word = (word, initialRow, initialCol, id, collisionDetector) => {
   };
 
   const splitToWordsByRows = () => {
-    if ((getOrientation() === 'HORIZONTAL')) {
+    if (getOrientation() === 'HORIZONTAL') {
       return [
         {
           word,

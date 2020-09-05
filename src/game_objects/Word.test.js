@@ -258,10 +258,16 @@ describe('Word', () => {
       );
     });
 
-    describe('rotating word ', () => {
+    describe('rotating word without collision or out of bounds', () => {
       beforeEach(() => {
+        collisionDetectorStub.isOutsideBoard.mockReturnValue(false);
+        collisionDetectorStub.checkCollision.mockReturnValue([]);
         word.rotate();
       });
+
+      testCollision({ startX: 40, endX: 60, startY: 80, endY: 160 }, 'some-id');
+
+      testOutOfBounds({ startX: 40, endX: 60, startY: 80, endY: 160 });
 
       it('changes word orientation to VERTICAL', () => {
         expect(word.getOrientation()).toBe('VERTICAL');
@@ -270,6 +276,36 @@ describe('Word', () => {
       it('rotating again changes orientation back to HORIZONTAL', () => {
         word.rotate();
 
+        expect(word.getOrientation()).toBe('HORIZONTAL');
+      });
+    });
+
+    describe('rotating word with collision', () => {
+      beforeEach(() => {
+        collisionDetectorStub.isOutsideBoard.mockReturnValue(false);
+        collisionDetectorStub.checkCollision.mockReturnValue([{some: 'object'}]);
+        word.rotate();
+      });
+
+      testCollision({ startX: 40, endX: 60, startY: 80, endY: 160 }, 'some-id');
+
+      testOutOfBounds({ startX: 40, endX: 60, startY: 80, endY: 160 });
+
+      it('does not change word orientation', () => {
+        expect(word.getOrientation()).toBe('HORIZONTAL');
+      });
+    });
+
+    describe('rotating word with out of bounds', () => {
+      beforeEach(() => {
+        collisionDetectorStub.isOutsideBoard.mockReturnValue(true);
+        collisionDetectorStub.checkCollision.mockReturnValue([]);
+        word.rotate();
+      });
+
+      testOutOfBounds({ startX: 40, endX: 60, startY: 80, endY: 160 });
+
+      it('does not change word orientation', () => {
         expect(word.getOrientation()).toBe('HORIZONTAL');
       });
     });
@@ -286,18 +322,19 @@ describe('Word', () => {
           { word: 'word', row: 4, col: 2 }
         ]);
       });
-      
+
       it('should return array of each letter, if the word is vertically oriented', () => {
+        collisionDetectorStub.isOutsideBoard.mockReturnValue(false);
+        collisionDetectorStub.checkCollision.mockReturnValue([]);
         word.rotate();
-        
+
         expect(word.splitToWordsByRows()).toEqual([
           { word: 'w', row: 4, col: 2 },
           { word: 'o', row: 3, col: 2 },
           { word: 'r', row: 2, col: 2 },
           { word: 'd', row: 1, col: 2 }
         ]);
-      })
-      
+      });
     });
   });
 });
