@@ -3,26 +3,44 @@ import Hitbox from './Hitbox';
 describe('Hitbox', () => {
   let hitbox;
 
-  it('should return hitbox coordinates correctly', () => {
-    hitbox = Hitbox({ x: 20, y: 40 }, 20, 20);
-
-    expect(hitbox.getHitboxLocation()).toEqual({
-      startX: 20,
-      endX: 40,
-      startY: 40,
-      endY: 60
+  describe('creating a hitbox', () => {
+    beforeEach(() => {
+      hitbox = Hitbox({ x: 20, y: 40 }, 80, 20);
     });
-  });
 
-  it('should return hitbox coordinates for new location correctly', () => {
-    hitbox = Hitbox({ x: 20, y: 40 }, 20, 20);
-
-    expect(hitbox.getHitboxForNewLocation(50, 50)).toEqual({
-      startX: 50,
-      endX: 70,
-      startY: 50,
-      endY: 70
+    it('should return hitbox coordinates correctly', () => {
+      expect(hitbox.getHitboxLocation()).toEqual({
+        startX: 20,
+        endX: 100,
+        startY: 40,
+        endY: 60
+      });
     });
+  
+    it('should return hitbox coordinates for new location correctly', () => {
+      expect(hitbox.getHitboxForNewLocation(60, 60)).toEqual({
+        startX: 60,
+        endX: 140,
+        startY: 60,
+        endY: 80
+      });
+    });
+  
+    it('should have proper height', () => {
+      expect(hitbox.getHeight()).toEqual(20);
+    });
+    
+    it('should have proper width', () => {
+      expect(hitbox.getWidth()).toEqual(80);
+    });
+
+    it('should be able to rotate the hitbox', () => {
+      hitbox.rotate();
+
+      expect(hitbox.getHeight()).toBe(80);
+      expect(hitbox.getWidth()).toBe(20);
+    })
+    
   });
 
   it('knows if given location is intersecting with hitbox', () => {
