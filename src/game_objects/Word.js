@@ -127,6 +127,12 @@ const Word = (word, initialRow, initialCol, id, collisionDetector) => {
 
   const getLocation = () => location;
 
+  const getCollisionDetector = () => collisionDetector;
+
+  const getRow = () => location.y / tileSize;
+
+  const getCol = () => location.x / tileSize;
+
   const destroy = () => {
     status = 'DESTROYED';
   };
@@ -147,8 +153,11 @@ const Word = (word, initialRow, initialCol, id, collisionDetector) => {
     checkRight,
     getStatus,
     getLocation,
+    getRow,
+    getCol,
     splitToWordsByRows,
-    destroy
+    destroy,
+    getCollisionDetector
   };
 };
 

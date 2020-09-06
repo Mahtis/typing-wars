@@ -4,8 +4,8 @@ import Word from './Word';
 const tileSize = 20;
 
 const Wordboard = (cols, rows, x, y) => {
-  const droppingWords = [];
-  const stationaryWords = [];
+  let droppingWords = [];
+  let stationaryWords = [];
   let words = [];
   let currentId = 1;
 
@@ -28,7 +28,21 @@ const Wordboard = (cols, rows, x, y) => {
   };
 
   const moveWordsDown = () => {
-    droppingWords.forEach(word => word.moveDown());
+    let wordsToRemove = [];
+
+    droppingWords.forEach((word, i) => {
+      const wasMoved = word.moveDown();
+
+      if (!wasMoved) {
+        splitAndMergeWords(word);
+
+        wordsToRemove.push(word.getId());
+      }
+    });
+
+    droppingWords = droppingWords.filter(
+      droppingWord => !wordsToRemove.includes(droppingWord.getId())
+    );
   };
 
   const moveActiveWordRight = () => {
@@ -42,22 +56,77 @@ const Wordboard = (cols, rows, x, y) => {
   const dropActiveWord = () => {
     const word = droppingWords.shift();
     word.drop();
-
-    stationaryWords.push(word);
-    collisionDetector.addCollisionObject(word);
+    
+    splitAndMergeWords(word);
   };
+
+  const splitAndMergeWords = handledWord => {
+    const newWords = handledWord.splitToWordsByRows();
+    stationaryWords = stationaryWords.filter(w => w !== handledWord);
+    collisionDetector.removeCollisionObject(handledWord);
+
+    newWords.forEach(wordDetails => {
+      const { word, col, row } = wordDetails;
+
+      const newWord = Word(word, row, col, createId(), collisionDetector);
+
+      const mergedWord = mergeWords(newWord);
+
+      stationaryWords.push(mergedWord);
+
+      collisionDetector.addCollisionObject(mergedWord);
+    });
+  };
+
+  const mergeWords = word => {
+    const toMerge = [...word.checkLeft(), word, ...word.checkRight()];
+
+    const mergedWord = toMerge.reduce(
+      (mergedWord, toMergeWord) => {
+        mergedWord.word += toMergeWord.getWord();
+
+        if (toMergeWord.getCol() < mergedWord.col) {
+          mergedWord.col = toMergeWord.getCol();
+        }
+
+        collisionDetector.removeCollisionObject(toMergeWord);
+        stationaryWords = stationaryWords.filter(w => w !== toMergeWord);
+
+        return mergedWord;
+      },
+      { word: '', col: word.getCol(), row: word.getRow() }
+    );
+
+    return Word(
+      mergedWord.word,
+      mergedWord.row,
+      mergedWord.col,
+      createId(),
+      collisionDetector
+    );
+  };
+
+  const rotateActiveWord = () => {};
 
   const addRow = () => {};
 
-  const getWords = () => words;
+  const getWords = () => [...stationaryWords, ...droppingWords];
 
   const setWords = wordSet => {
     wordSet.forEach((word, i) => {
-      const createdWord = Word(word.word, word.row, word.col, i, collisionDetector);
+      const createdWord = Word(
+        word.word,
+        word.row,
+        word.col,
+        createId(),
+        collisionDetector
+      );
       words.push(createdWord);
       droppingWords.push(createdWord);
     });
   };
+
+  const draw = () => {};
 
   return {
     addWord,
@@ -66,7 +135,8 @@ const Wordboard = (cols, rows, x, y) => {
     moveActiveWordLeft,
     dropActiveWord,
     getWords,
-    setWords
+    setWords,
+    draw
   };
 };
 

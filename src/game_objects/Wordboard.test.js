@@ -117,6 +117,40 @@ describe('Wordboard', () => {
                 { x: 0, y: 160 }
               ]);
             });
+
+            describe('moving words down until they reach the stationary words', () => {
+              beforeEach(() => {
+                wordboard.moveWordsDown();
+                wordboard.moveWordsDown();
+                wordboard.moveWordsDown();
+                wordboard.moveWordsDown();
+                wordboard.moveWordsDown();
+              });
+
+              it('moves the dropping words accordingly', () => {
+                const wordThree = wordboard.getWords()[2].getLocation();
+                const wordFour = wordboard.getWords()[3].getLocation();
+                const droppingWords = [wordThree, wordFour];
+
+                expect(droppingWords).toEqual([
+                  { x: 0, y: 140 },
+                  { x: 0, y: 120 }
+                ]);
+              });
+
+              it('moving words down still, does not move them further', () => {
+                wordboard.moveWordsDown();
+
+                const wordThree = wordboard.getWords()[2].getLocation();
+                const wordFour = wordboard.getWords()[3].getLocation();
+                const droppingWords = [wordThree, wordFour];
+
+                expect(droppingWords).toEqual([
+                  { x: 0, y: 140 },
+                  { x: 0, y: 120 }
+                ]);
+              });
+            });
           });
         });
       });
@@ -164,7 +198,7 @@ describe('Wordboard', () => {
       ]);
     });
   });
-  
+
   describe('board with a dropping word on right side', () => {
     beforeEach(() => {
       wordboard.setWords([
@@ -194,6 +228,50 @@ describe('Wordboard', () => {
         { x: 0, y: 80 },
         { x: 0, y: 60 }
       ]);
+    });
+  });
+
+  describe('board with a word on left and right side at bottom', () => {
+    beforeEach(() => {
+      wordboard.setWords([
+        { word: 'word', row: 9, col: 16 },
+        { word: 'lookatmy', row: 9, col: 0 },
+        { word: 'verylong', row: 5, col: 8 }
+      ]);
+    });
+
+    describe('moving words down and dropping middle word', () => {
+      beforeEach(() => {
+        wordboard.moveWordsDown();
+        wordboard.dropActiveWord();
+      });
+
+      it('result in a board with a single word', () => {
+        expect(wordboard.getWords().length).toBe(1);
+      });
+
+      it('produces a word that is a combination of all three words', () => {
+        expect(wordboard.getWords()[0].getWord()).toBe('lookatmyverylongword');
+      });
+    });
+
+
+    describe('moving words down until all are at the bottom', () => {
+      beforeEach(() => {
+        wordboard.moveWordsDown();
+        wordboard.moveWordsDown();
+        wordboard.moveWordsDown();
+        wordboard.moveWordsDown();
+        wordboard.moveWordsDown();
+      });
+
+      it('result in a board with a single word', () => {
+        expect(wordboard.getWords().length).toBe(1);
+      });
+
+      it('produces a word that is a combination of all three words', () => {
+        expect(wordboard.getWords()[0].getWord()).toBe('lookatmyverylongword');
+      });
     });
   });
 });

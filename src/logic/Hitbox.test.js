@@ -65,6 +65,14 @@ describe('Hitbox', () => {
     expect(hitbox.isObjectIntersecting(otherHitbox.getHitboxLocation())).toBe(true);
   });
 
+  it('returns collision to the left correctly', () => {
+    const otherHitbox = Hitbox({ x: 0, y: 180 }, 160, 20);
+
+    hitbox = Hitbox({ x: 140, y: 180 }, 160, 20);
+
+    expect(hitbox.isObjectIntersecting(otherHitbox.getHitboxLocation())).toBe(true);
+  });
+
   it('if other hitbox is above checking hitbox, returns false', () => {
     const otherHitbox = Hitbox({ x: 20, y: 0 }, 20, 20);
 

@@ -60,6 +60,15 @@ describe('Word', () => {
       expect(word.getOrientation()).toEqual('HORIZONTAL');
     });
 
+    it('knows own location described in rows', () => {
+      expect(word.getRow()).toBe(4);
+    });
+
+    it('knows own location described in columns', () => {
+      expect(word.getCol()).toBe(2);
+    });
+    
+
     describe('moving word left without collision', () => {
       beforeEach(() => {
         collisionDetectorStub.isOutsideBoard.mockReturnValue(false);
@@ -187,7 +196,7 @@ describe('Word', () => {
       );
     });
 
-    describe('dropping the word', () => {
+    describe('dropping the word without collisions on the way down', () => {
       beforeEach(() => {
         collisionDetectorStub.isOutsideBoard
           .mockReturnValueOnce(false)
@@ -199,12 +208,57 @@ describe('Word', () => {
         word.drop();
       });
 
-      it('drops the word until it is outside board with something', () => {
+      it('drops the word until it is outside board', () => {
         expect(collisionDetectorStub.isOutsideBoard.mock.calls.length).toBe(5);
       });
 
       it('word location should be correct', () => {
         expect(word.getLocation()).toEqual({ x: 40, y: 160 });
+      });
+    });
+
+    describe('dropping the word with collision before last row', () => {
+      beforeEach(() => {
+        collisionDetectorStub.isOutsideBoard
+          .mockReturnValue(false);
+        collisionDetectorStub.checkCollision
+          .mockReturnValueOnce([])
+          .mockReturnValueOnce([])
+          .mockReturnValueOnce([])
+          .mockReturnValueOnce([{some: 'object'}]);
+        word.drop();
+      });
+
+      it('drops the word until it hits something', () => {
+        expect(collisionDetectorStub.isOutsideBoard.mock.calls.length).toBe(4);
+      });
+
+      it('drops the word until it hits something', () => {
+        expect(collisionDetectorStub.checkCollision.mock.calls.length).toBe(4);
+      });
+
+      testCollision(
+        { startX: 40, endX: 120, startY: 100, endY: 120 },
+        'some-id'
+      );
+
+      testCollision(
+        { startX: 40, endX: 120, startY: 120, endY: 140 },
+        'some-id'
+      );
+
+      testCollision(
+        { startX: 40, endX: 120, startY: 140, endY: 160 },
+        'some-id'
+      );
+
+      testCollision(
+        { startX: 40, endX: 120, startY: 160, endY: 180 },
+        'some-id'
+      );
+
+      it('word location should be correct', () => {
+        expect(word.getLocation()).toEqual({ x: 40, y: 140 });
       });
     });
 
