@@ -106,9 +106,13 @@ const Wordboard = (cols, rows, x, y) => {
     );
   };
 
-  const rotateActiveWord = () => {};
+  const rotateActiveWord = () => {
+    droppingWords[0].rotate();
+  };
 
   const addRow = () => {};
+
+  const getActiveWord = () => droppingWords[0]
 
   const getWords = () => [...stationaryWords, ...droppingWords];
 
@@ -134,6 +138,8 @@ const Wordboard = (cols, rows, x, y) => {
     moveActiveWordRight,
     moveActiveWordLeft,
     dropActiveWord,
+    rotateActiveWord,
+    getActiveWord,
     getWords,
     setWords,
     draw

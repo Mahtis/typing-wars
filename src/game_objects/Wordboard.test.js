@@ -1,5 +1,6 @@
 import Wordboard from './Wordboard';
 import Word from './Word';
+import { range } from '../util';
 
 describe('Wordboard', () => {
   let wordboard;
@@ -255,7 +256,6 @@ describe('Wordboard', () => {
       });
     });
 
-
     describe('moving words down until all are at the bottom', () => {
       beforeEach(() => {
         wordboard.moveWordsDown();
@@ -272,6 +272,32 @@ describe('Wordboard', () => {
       it('produces a word that is a combination of all three words', () => {
         expect(wordboard.getWords()[0].getWord()).toBe('lookatmyverylongword');
       });
+    });
+  });
+
+  describe('rotating a word', () => {
+    beforeEach(() => {
+      wordboard.setWords([
+        { word: 'word', row: 1, col: 0 },
+        { word: 'otherword', row: 0, col: 0 }
+      ]);
+
+      wordboard.rotateActiveWord();
+    });
+
+    it('should rotate the active word', () => {
+      expect(wordboard.getWords()[0].getOrientation()).toBe('VERTICAL');
+    });
+
+    it('should not rotate other words', () => {
+      expect(wordboard.getWords()[1].getOrientation()).toBe('HORIZONTAL');
+    });
+
+    it('roating vertical word too close to wall, does not rotate the word', () => {
+      range(0, 17).forEach(() => wordboard.moveActiveWordRight());
+      wordboard.rotateActiveWord();
+
+      expect(wordboard.getActiveWord().getOrientation()).toBe('VERTICAL');
     });
   });
 });
