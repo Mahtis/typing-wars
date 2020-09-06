@@ -56,7 +56,7 @@ const Wordboard = (cols, rows, x, y) => {
   const dropActiveWord = () => {
     const word = droppingWords.shift();
     word.drop();
-    
+
     splitAndMergeWords(word);
   };
 
@@ -110,11 +110,31 @@ const Wordboard = (cols, rows, x, y) => {
     droppingWords[0].rotate();
   };
 
-  const addRow = () => {};
+  const addRow = row => {
+    droppingWords = droppingWords.filter(word => {
+      if (word.checkDown().length !== 0) {
+        stationaryWords.push(word);
+        collisionDetector.addCollisionObject(word);
+        return false;
+      }
+      return true;
+    });
 
-  const getActiveWord = () => droppingWords[0]
+    stationaryWords.forEach(word => {
+      word.moveUp();
+    });
+
+    const rowWord = Word(row, rows - 1, 0, createId(), collisionDetector);
+
+    collisionDetector.addCollisionObject(rowWord);
+    stationaryWords.unshift(rowWord);
+  };
+
+  const getActiveWord = () => droppingWords[0];
 
   const getWords = () => [...stationaryWords, ...droppingWords];
+
+  const getCollisionDetector = () => collisionDetector;
 
   const setWords = wordSet => {
     wordSet.forEach((word, i) => {
@@ -125,6 +145,7 @@ const Wordboard = (cols, rows, x, y) => {
         createId(),
         collisionDetector
       );
+
       words.push(createdWord);
       droppingWords.push(createdWord);
     });
@@ -134,6 +155,7 @@ const Wordboard = (cols, rows, x, y) => {
 
   return {
     addWord,
+    addRow,
     moveWordsDown,
     moveActiveWordRight,
     moveActiveWordLeft,
@@ -142,6 +164,7 @@ const Wordboard = (cols, rows, x, y) => {
     getActiveWord,
     getWords,
     setWords,
+    getCollisionDetector,
     draw
   };
 };

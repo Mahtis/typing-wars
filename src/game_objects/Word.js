@@ -40,7 +40,9 @@ const Word = (word, initialRow, initialCol, id, collisionDetector) => {
     return collisionObjects.length === 0;
   };
 
-  const moveUp = () => {};
+  const moveUp = () => {
+    location.y = location.y - tileSize;
+  };
 
   const moveDown = () => {
     const newX = location.x;
@@ -103,6 +105,13 @@ const Word = (word, initialRow, initialCol, id, collisionDetector) => {
     return checkLocation(newX, newY);
   };
 
+  const checkDown = () => {
+    const newX = location.x;
+    const newY = location.y + tileSize;
+
+    return checkLocation(newX, newY);
+  }
+
   const splitToWordsByRows = () => {
     if (getOrientation() === 'HORIZONTAL') {
       return [
@@ -151,6 +160,7 @@ const Word = (word, initialRow, initialCol, id, collisionDetector) => {
     rotate,
     checkLeft,
     checkRight,
+    checkDown,
     getStatus,
     getLocation,
     getRow,

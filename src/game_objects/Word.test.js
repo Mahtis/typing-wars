@@ -67,7 +67,6 @@ describe('Word', () => {
     it('knows own location described in columns', () => {
       expect(word.getCol()).toBe(2);
     });
-    
 
     describe('moving word left without collision', () => {
       beforeEach(() => {
@@ -156,6 +155,16 @@ describe('Word', () => {
       );
     });
 
+    describe('moving word up', () => {
+      beforeEach(() => {
+        word.moveUp();
+      });
+
+      it('moves word up', () => {
+        expect(word.getLocation()).toEqual({ x: 40, y: 60 });
+      });
+    });
+
     describe('moving word down with no collision', () => {
       beforeEach(() => {
         collisionDetectorStub.isOutsideBoard.mockReturnValue(false);
@@ -219,13 +228,12 @@ describe('Word', () => {
 
     describe('dropping the word with collision before last row', () => {
       beforeEach(() => {
-        collisionDetectorStub.isOutsideBoard
-          .mockReturnValue(false);
+        collisionDetectorStub.isOutsideBoard.mockReturnValue(false);
         collisionDetectorStub.checkCollision
           .mockReturnValueOnce([])
           .mockReturnValueOnce([])
           .mockReturnValueOnce([])
-          .mockReturnValueOnce([{some: 'object'}]);
+          .mockReturnValueOnce([{ some: 'object' }]);
         word.drop();
       });
 
@@ -312,6 +320,31 @@ describe('Word', () => {
       );
     });
 
+    describe('checking down', () => {
+      let collisions;
+
+      beforeEach(() => {
+        collisionDetectorStub.checkCollision.mockReturnValue([
+          { some: 'object' },
+          { some: 'other-object' }
+        ]);
+
+        collisions = word.checkDown();
+      });
+
+      it('returns array of objects the word would collide with if it was moved down', () => {
+        expect(collisions).toEqual([
+          { some: 'object' },
+          { some: 'other-object' }
+        ]);
+      });
+
+      testCollision(
+        { startX: 40, endX: 120, startY: 100, endY: 120 },
+        'some-id'
+      );
+    });
+
     describe('rotating word without collision or out of bounds', () => {
       beforeEach(() => {
         collisionDetectorStub.isOutsideBoard.mockReturnValue(false);
@@ -337,7 +370,9 @@ describe('Word', () => {
     describe('rotating word with collision', () => {
       beforeEach(() => {
         collisionDetectorStub.isOutsideBoard.mockReturnValue(false);
-        collisionDetectorStub.checkCollision.mockReturnValue([{some: 'object'}]);
+        collisionDetectorStub.checkCollision.mockReturnValue([
+          { some: 'object' }
+        ]);
         word.rotate();
       });
 

@@ -300,4 +300,51 @@ describe('Wordboard', () => {
       expect(wordboard.getActiveWord().getOrientation()).toBe('VERTICAL');
     });
   });
+
+  describe('adding a row', () => {
+    beforeEach(() => {
+      wordboard.setWords([
+        { word: 'word', row: 1, col: 6 },
+        { word: 'otherword', row: 0, col: 0 }
+      ]);
+      wordboard.dropActiveWord();
+      wordboard.dropActiveWord();
+      wordboard.addRow('xxxxxthisisarowxxxxx');
+    });
+
+    it('adds the row to the bottom of the board', () => {
+      expect(wordboard.getWords()[0].getWord()).toBe('xxxxxthisisarowxxxxx');
+    });
+
+    it('moves other rows up', () => {
+      const word = wordboard.getWords()[1];
+      const otherWord = wordboard.getWords()[2];
+
+      expect(word.getRow()).toBe(8);
+      expect(otherWord.getRow()).toBe(7);
+    });
+
+    it('if there is a dropping word above a word about to move, it is moved as well', () => {
+      wordboard.addWord('dropping'); // 0
+      wordboard.moveWordsDown(); // 1
+      wordboard.moveWordsDown(); // 2
+      wordboard.moveWordsDown(); // 3
+      wordboard.moveWordsDown(); // 4
+      wordboard.moveWordsDown(); // 5
+      wordboard.moveWordsDown(); // 6
+
+      wordboard.addRow('newrowsocoolxxxxxxxx');
+
+      //dropping              5
+      //otherword             6
+      //     word             7
+      //xxxxxthisisarowxxxxx  8
+      //newrowsocoolxxxxxxxx  9
+      expect(wordboard.getWords()[4].getRow()).toBe(5);
+      expect(
+        wordboard.getWords()[4].getCollisionDetector().getCollisionObjects()
+          .length
+      ).toBe(5);
+    });
+  });
 });
