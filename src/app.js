@@ -56,6 +56,9 @@ const startGame = async () => {
 
   const handler = keyHandler();
 
+  // This seems to be the easiest way to ensure that the VCR OSD Mono font is loaded
+  await document.fonts.load('15.5px VCR OSD Mono');
+
   const canvas = document.getElementById('game');
 
   const helper = await drawHelper();

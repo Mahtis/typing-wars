@@ -2,6 +2,8 @@ import Wordboard from './Wordboard';
 import Word from './Word';
 import { range } from '../util';
 
+jest.mock('../drawing/SpriteProvider')
+
 describe('Wordboard', () => {
   let wordboard;
 

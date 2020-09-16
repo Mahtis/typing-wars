@@ -1,9 +1,13 @@
-import Word from './Word';
+import Word, { dependencies } from './Word';
+
+jest.mock('../drawing/SpriteProvider');
 
 describe('Word', () => {
   describe('creating a word', () => {
     let word;
     let collisionDetectorStub;
+    let wordDrawerStub;
+    let drawMock;
 
     const testCollision = (location, id) => {
       it('checks for collision', () => {
@@ -23,6 +27,9 @@ describe('Word', () => {
     };
 
     beforeEach(() => {
+      drawMock = jest.fn();
+      wordDrawerStub = () => ({ draw: drawMock });
+      dependencies.wordDrawer = wordDrawerStub;
       collisionDetectorStub = {
         checkCollision: jest.fn(),
         isOutsideBoard: jest.fn()
@@ -52,8 +59,36 @@ describe('Word', () => {
       expect(word.getLocation()).toEqual({ x: 40, y: 80 });
     });
 
-    it('status of word is initially "MOVING"', () => {
-      expect(word.getStatus()).toEqual('MOVING');
+    it('by default initialises WordDrawer with type "NORMAL"', () => {
+      const wordDrawerMock = jest.fn();
+      dependencies.wordDrawer = wordDrawerMock;
+
+      Word('test', 1, 1, '1', () => {});
+
+      expect(wordDrawerMock).toHaveBeenCalledWith('test', 'NORMAL');
+    });
+
+    it('if word is NORMAL type, first draw is called with created state', () => {
+      word.draw({});
+      expect(drawMock).toHaveBeenCalledWith(
+        {},
+        { x: 40, y: 80 },
+        'HORIZONTAL',
+        'created'
+      );
+    });
+
+    it('given word is not type NORMAL, first draw is called with no state', () => {
+      const receivedWord = Word('test', 9, 0, '1', () => {}, 'RECEIVED');
+
+      receivedWord.draw({});
+
+      expect(drawMock).toHaveBeenCalledWith(
+        {},
+        { x: 0, y: 180 },
+        'HORIZONTAL',
+        ''
+      );
     });
 
     it('orientation is initially HORIZONTAL', () => {
@@ -110,6 +145,16 @@ describe('Word', () => {
         'some-id'
       );
 
+      it('calls word drawer with bumpLeft on next draw', () => {
+        word.draw({});
+        expect(drawMock).toHaveBeenCalledWith(
+          {},
+          { x: 40, y: 80 },
+          'HORIZONTAL',
+          'bumpLeft'
+        );
+      });
+
       it('does not move word left', () => {
         expect(word.getLocation()).toEqual({ x: 40, y: 80 });
       });
@@ -153,6 +198,16 @@ describe('Word', () => {
         { startX: 60, endX: 140, startY: 80, endY: 100 },
         'some-id'
       );
+
+      it('calls word drawer with bumpRight on next draw', () => {
+        word.draw({});
+        expect(drawMock).toHaveBeenCalledWith(
+          {},
+          { x: 40, y: 80 },
+          'HORIZONTAL',
+          'bumpRight'
+        );
+      });
     });
 
     describe('moving word up', () => {
@@ -203,6 +258,16 @@ describe('Word', () => {
         { startX: 40, endX: 120, startY: 100, endY: 120 },
         'some-id'
       );
+
+      it('calls word drawer with bumpDown on next draw', () => {
+        word.draw({});
+        expect(drawMock).toHaveBeenCalledWith(
+          {},
+          { x: 40, y: 80 },
+          'HORIZONTAL',
+          'bumpDown'
+        );
+      });
     });
 
     describe('dropping the word without collisions on the way down', () => {
@@ -399,11 +464,11 @@ describe('Word', () => {
       });
     });
 
-    it('destroying a word sets it as destroyed', () => {
-      word.destroy();
+    // it('destroying a word sets it as destroyed', () => {
+    //   word.destroy();
 
-      expect(word.getStatus()).toEqual('DESTROYED');
-    });
+    //   expect(word.getStatus()).toEqual('DESTROYED');
+    // });
 
     describe('splitting a word by rows', () => {
       it('should return an array with the word, if there word is horizontally oriented', () => {

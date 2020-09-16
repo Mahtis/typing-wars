@@ -1,17 +1,20 @@
-import SpriteProvider from '../drawing/SpriteProvider';
 import Hitbox from '../logic/Hitbox';
+import WordDrawer from '../drawing/WordDrawer';
 
-const CHAR_SPRITE = 'charBoardTile';
+export const dependencies = {
+  wordDrawer: WordDrawer
+}
+
 const tileSize = 20;
 
-const Word = (word, initialRow, initialCol, id, collisionDetector) => {
-  const sprite = SpriteProvider.getSprite(CHAR_SPRITE);
-
+const Word = (word, initialRow, initialCol, id, collisionDetector, type = 'NORMAL') => {
   const location = { x: initialCol * tileSize, y: initialRow * tileSize };
 
   const hitbox = Hitbox(location, tileSize * word.length, tileSize);
 
-  let status = 'MOVING';
+  const drawer = dependencies.wordDrawer(word, type);
+
+  let state = type === 'NORMAL' ? 'created' : '';
 
   const getId = () => id;
 
@@ -48,7 +51,11 @@ const Word = (word, initialRow, initialCol, id, collisionDetector) => {
     const newX = location.x;
     const newY = location.y + tileSize;
 
-    return moveTo(newX, newY);
+    const success = moveTo(newX, newY);
+    if (!success) {
+      state = 'bumpDown';
+    }
+    return success;
   };
 
   const drop = () => {
@@ -62,14 +69,22 @@ const Word = (word, initialRow, initialCol, id, collisionDetector) => {
     const newX = location.x - tileSize;
     const newY = location.y;
 
-    return moveTo(newX, newY);
+    const success = moveTo(newX, newY);
+    if (!success) {
+      state = 'bumpLeft';
+    }
+    return success;
   };
 
   const moveRight = () => {
     const newX = location.x + tileSize;
     const newY = location.y;
 
-    return moveTo(newX, newY);
+    const success = moveTo(newX, newY);
+    if (!success) {
+      state = 'bumpRight';
+    }
+    return success;
   };
 
   // Maybe a bit antipattern to do and undo a move
@@ -110,7 +125,7 @@ const Word = (word, initialRow, initialCol, id, collisionDetector) => {
     const newY = location.y + tileSize;
 
     return checkLocation(newX, newY);
-  }
+  };
 
   const splitToWordsByRows = () => {
     if (getOrientation() === 'HORIZONTAL') {
@@ -132,8 +147,6 @@ const Word = (word, initialRow, initialCol, id, collisionDetector) => {
     }
   };
 
-  const getStatus = () => status;
-
   const getLocation = () => location;
 
   const getCollisionDetector = () => collisionDetector;
@@ -143,8 +156,10 @@ const Word = (word, initialRow, initialCol, id, collisionDetector) => {
   const getCol = () => location.x / tileSize;
 
   const destroy = () => {
-    status = 'DESTROYED';
+    state = 'DESTROYED';
   };
+
+  const draw = ctx => drawer.draw(ctx, location, getOrientation(), state);
 
   return {
     moveUp,
@@ -161,13 +176,13 @@ const Word = (word, initialRow, initialCol, id, collisionDetector) => {
     checkLeft,
     checkRight,
     checkDown,
-    getStatus,
     getLocation,
     getRow,
     getCol,
     splitToWordsByRows,
     destroy,
-    getCollisionDetector
+    getCollisionDetector,
+    draw
   };
 };
 
