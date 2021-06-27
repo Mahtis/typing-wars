@@ -35,42 +35,69 @@ const WordDrawer = (word, type) => {
   const createdDrawer = wordCreatedAnimation();
   const stoppedDrawer = wordStoopedAnimation();
   const bumpDrawer = wordBumpAnimation();
+  const defaultDrawer = wordDefaultDrawer();
   let state = '';
+  let currentDrawer = defaultDrawer;
 
-  const draw = (ctx, location, orientation, newState) => {
-    if (newState && newState !== '') {
-      state = newState;
-    }
+  const draw = (ctx, location, orientation, state) => {
+    // if (newState && newState !== '') {
+    //   state = newState;
+    // }
 
     const wordToDraw = orientation === 'VERTICAL' ? verWord : horWord;
+    const yLocation =
+      orientation === 'VERTICAL'
+        ? location.y - verWord.height + tileSize
+        : location.y;
     // render the animation according to state
     // if the animation is done, render a static version
     if (state === 'created') {
-      createdDrawer.draw(ctx, wordToDraw, location.x, location.y);
-      if (createdDrawer.isAnimationDone()) {
-        state = '';
-      }
+      createdDrawer.start();
+      currentDrawer = createdDrawer;
+      // createdDrawer.draw(ctx, wordToDraw, location.x, location.y);
+      // if (createdDrawer.isAnimationDone()) {
+      //   state = '';
+      // }
     } else if (state === 'bumpDown') {
-      stoppedDrawer.draw(ctx, wordToDraw, location.x, location.y);
-      if (stoppedDrawer.isAnimationDone()) {
-        state = '';
-      }
+      stoppedDrawer.start();
+      currentDrawer = stoppedDrawer;
+      // stoppedDrawer.draw(ctx, wordToDraw, location.x, location.y);
+      // if (stoppedDrawer.isAnimationDone()) {
+      //   state = '';
+      // }
     } else if (state === 'bumpLeft') {
-      bumpDrawer.draw(ctx, wordToDraw, location.x, location.y, 'left');
-      if (bumpDrawer.isAnimationDone()) {
-        state = '';
-      }
+      bumpDrawer.start('left');
+      currentDrawer = bumpDrawer;
+      // bumpDrawer.draw(ctx, wordToDraw, location.x, location.y, 'left');
+      // if (bumpDrawer.isAnimationDone()) {
+      //   state = '';
+      // }
     } else if (state === 'bumpRight') {
-      bumpDrawer.draw(ctx, wordToDraw, location.x, location.y, 'right');
-      if (bumpDrawer.isAnimationDone()) {
-        state = '';
-      }
-    } else {
-      ctx.drawImage(wordToDraw, location.x, location.y);
+      bumpDrawer.start('right');
+      currentDrawer = bumpDrawer;
+      // bumpDrawer.draw(ctx, wordToDraw, location.x, location.y, 'right');
+      // if (bumpDrawer.isAnimationDone()) {
+      //   state = '';
+    }
+    // } else {
+    //   ctx.drawImage(wordToDraw, location.x, location.y);
+    // }
+    currentDrawer.draw(ctx, wordToDraw, location.x, yLocation);
+    if (currentDrawer.isAnimationDone()) {
+      currentDrawer = defaultDrawer;
     }
   };
 
   return { draw };
+};
+
+const wordDefaultDrawer = () => {
+  return {
+    draw: (ctx, wordToDraw, x, y) => {
+      ctx.drawImage(wordToDraw, x, y);
+    },
+    isAnimationDone: () => false
+  };
 };
 
 const createCharacterBaseSprites = (word, sprite) =>
@@ -109,7 +136,7 @@ const getVerticalWord = characters => {
   const ctx = canvas.getContext('2d');
 
   characters.forEach((char, i) => {
-    ctx.drawImage(char, 0, i * tileSize);
+    ctx.drawImage(char, 0, canvas.height - (i + 1) * tileSize);
   });
 
   return canvas;

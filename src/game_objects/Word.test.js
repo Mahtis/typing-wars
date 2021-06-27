@@ -68,13 +68,13 @@ describe('Word', () => {
       expect(wordDrawerMock).toHaveBeenCalledWith('test', 'NORMAL');
     });
 
-    it('if word is NORMAL type, first draw is called with created state', () => {
+    it('if word is NORMAL type, first draw is called with no state', () => {
       word.draw({});
       expect(drawMock).toHaveBeenCalledWith(
         {},
         { x: 40, y: 80 },
         'HORIZONTAL',
-        'created'
+        ''
       );
     });
 
@@ -95,12 +95,20 @@ describe('Word', () => {
       expect(word.getOrientation()).toEqual('HORIZONTAL');
     });
 
-    it('knows own location described in rows', () => {
+    it('knows own row location based on first character', () => {
       expect(word.getRow()).toBe(4);
     });
 
-    it('knows own location described in columns', () => {
+    it('knows own location as array of rows', () => {
+      expect(word.getRows()).toEqual([4]);
+    });
+
+    it('knows own col location based on first character', () => {
       expect(word.getCol()).toBe(2);
+    });
+
+    it('knows own location as array of columns', () => {
+      expect(word.getCols()).toEqual([2, 3, 4, 5]);
     });
 
     describe('moving word left without collision', () => {
@@ -417,9 +425,9 @@ describe('Word', () => {
         word.rotate();
       });
 
-      testCollision({ startX: 40, endX: 60, startY: 80, endY: 160 }, 'some-id');
+      testCollision({ startX: 40, endX: 60, startY: 20, endY: 100 }, 'some-id');
 
-      testOutOfBounds({ startX: 40, endX: 60, startY: 80, endY: 160 });
+      testOutOfBounds({ startX: 40, endX: 60, startY: 20, endY: 100 });
 
       it('changes word orientation to VERTICAL', () => {
         expect(word.getOrientation()).toBe('VERTICAL');
@@ -429,6 +437,14 @@ describe('Word', () => {
         word.rotate();
 
         expect(word.getOrientation()).toBe('HORIZONTAL');
+      });
+
+      it('getting rows returns correctly the based on where first character is located on', () => {
+        expect(word.getRows()).toEqual([4, 3, 2, 1]);
+      });
+
+      it('getting cols returns only one col', () => {
+        expect(word.getCols()).toEqual([2]);
       });
     });
 
@@ -441,9 +457,9 @@ describe('Word', () => {
         word.rotate();
       });
 
-      testCollision({ startX: 40, endX: 60, startY: 80, endY: 160 }, 'some-id');
+      testCollision({ startX: 40, endX: 60, startY: 20, endY: 100 }, 'some-id');
 
-      testOutOfBounds({ startX: 40, endX: 60, startY: 80, endY: 160 });
+      testOutOfBounds({ startX: 40, endX: 60, startY: 20, endY: 100 });
 
       it('does not change word orientation', () => {
         expect(word.getOrientation()).toBe('HORIZONTAL');
@@ -457,7 +473,7 @@ describe('Word', () => {
         word.rotate();
       });
 
-      testOutOfBounds({ startX: 40, endX: 60, startY: 80, endY: 160 });
+      testOutOfBounds({ startX: 40, endX: 60, startY: 20, endY: 100 });
 
       it('does not change word orientation', () => {
         expect(word.getOrientation()).toBe('HORIZONTAL');
@@ -469,6 +485,96 @@ describe('Word', () => {
 
     //   expect(word.getStatus()).toEqual('DESTROYED');
     // });
+
+    describe('splitting the word on a row', () => {
+      let splitWords;
+
+      describe('given the word is horizontally oriented', () => {
+        beforeEach(() => {
+          splitWords = word.splitOnRow(4);
+        });
+
+        it('returns an object with the current word and its details', () => {
+          expect(splitWords).toEqual([
+            {
+              word: 'word',
+              row: 4,
+              col: 2,
+              orientation: 'HORIZONTAL'
+            }
+          ]);
+        });
+      });
+
+      describe('given the word is vertically oriented', () => {
+        beforeEach(() => {
+          collisionDetectorStub.isOutsideBoard.mockReturnValue(false);
+          collisionDetectorStub.checkCollision.mockReturnValue([]);
+          word.rotate();
+        });
+
+        it('if splitting at the top most character, returns two words', () => {
+          splitWords = word.splitOnRow(1);
+
+          expect(splitWords).toEqual([
+            {
+              word: 'd',
+              row: 1,
+              col: 2,
+              orientation: 'VERTICAL'
+            },
+            {
+              word: 'wor',
+              row: 4,
+              col: 2,
+              orientation: 'VERTICAL'
+            }
+          ]);
+        });
+
+        it('if splitting at a middle character, returns three words', () => {
+          splitWords = word.splitOnRow(3);
+          expect(splitWords).toEqual([
+            {
+              word: 'rd',
+              row: 2,
+              col: 2,
+              orientation: 'VERTICAL'
+            },
+            {
+              word: 'o',
+              row: 3,
+              col: 2,
+              orientation: 'VERTICAL'
+            },
+            {
+              word: 'w',
+              row: 4,
+              col: 2,
+              orientation: 'VERTICAL'
+            }
+          ]);
+        });
+
+        it('if splitting at the bottom most character, returns two words', () => {
+          splitWords = word.splitOnRow(4);
+          expect(splitWords).toEqual([
+            {
+              word: 'ord',
+              row: 3,
+              col: 2,
+              orientation: 'VERTICAL'
+            },
+            {
+              word: 'w',
+              row: 4,
+              col: 2,
+              orientation: 'VERTICAL'
+            }
+          ]);
+        });
+      });
+    });
 
     describe('splitting a word by rows', () => {
       it('should return an array with the word, if there word is horizontally oriented', () => {

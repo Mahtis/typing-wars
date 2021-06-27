@@ -1,13 +1,16 @@
+import WordboardDrawer from '../drawing/newWordboardDrawer';
 import CollisionDetector from '../logic/CollisionDetector';
 import Word from './Word';
 
 const tileSize = 20;
 
-const Wordboard = (cols, rows, x, y) => {
+const Wordboard = (cols, rows, x, y, ctx) => {
   let droppingWords = [];
   let stationaryWords = [];
   let words = [];
   let currentId = 1;
+
+  const drawer = WordboardDrawer(rows, cols, x, y, ctx);
 
   const collisionDetector = CollisionDetector(cols * tileSize, rows * tileSize);
 
@@ -34,15 +37,122 @@ const Wordboard = (cols, rows, x, y) => {
       const wasMoved = word.moveDown();
 
       if (!wasMoved) {
-        splitAndMergeWords(word);
-
         wordsToRemove.push(word.getId());
+        stationaryWords.push(word);
+        collisionDetector.addCollisionObject(word);
+        // get the rows that word is located on
+        const wordRows = word.getRows();
+        // go through rows
+        wordRows.forEach(wordRow => {
+          // get all stationary words that are on the same row
+          const wordsOnRow = stationaryWords.filter(word =>
+            word.getRows().includes(wordRow)
+          );
+
+          // check if row is now complete
+          if (isRowComplete(wordsOnRow)) {
+            let completeRow = [];
+            const wordsToCreate = [];
+
+            wordsOnRow.forEach(wordOnRow => {
+              // split the word around the given row
+              const newWords = wordOnRow.splitOnRow(wordRow);
+
+              newWords.forEach(newWord => {
+                if (newWord.row === wordRow) {
+                  // if processed part is on the wanted row, add it to the list of completed row
+                  completeRow.push(newWord);
+                } else {
+                  // else a new word needs to be created from it
+                  wordsToCreate.push(newWord);
+                }
+              });
+            });
+
+            // sort the words according to column so that the new row is in correct order
+            completeRow.sort((a, b) => a.col - b.col);
+
+            const completedWord = Word(
+              completeRow.map(w => w.word).join(''),
+              wordRow,
+              0,
+              createId(),
+              collisionDetector,
+              'COMPLETED',
+              'completed'
+            );
+
+            words.push(completedWord);
+            stationaryWords.push(completedWord);
+            collisionDetector.addCollisionObject(completedWord);
+
+            stationaryWords = stationaryWords.filter(
+              word => !wordsOnRow.includes(word)
+            );
+
+            createStationaryWords(wordsToCreate);
+          }
+        });
       }
     });
 
     droppingWords = droppingWords.filter(
       droppingWord => !wordsToRemove.includes(droppingWord.getId())
     );
+  };
+
+  const dropActiveWord = () => {
+    const word = droppingWords.shift();
+    word.drop();
+
+    stationaryWords.push(word);
+    collisionDetector.addCollisionObject(word);
+    const wordRow = word.getRow();
+
+    const wordsOnRow = stationaryWords.filter(word =>
+      word.getRows().includes(wordRow)
+    );
+
+    if (isRowComplete(wordsOnRow)) {
+      let completeRow = [];
+      const wordsToCreate = [];
+
+      wordsOnRow.forEach(wordOnRow => {
+        const newWords = wordOnRow.splitOnRow(wordRow);
+
+        newWords.forEach(newWord => {
+          if (newWord.row === wordRow) {
+            completeRow.push(newWord);
+          } else {
+            wordsToCreate.push(newWord);
+          }
+        });
+
+        collisionDetector.removeCollisionObject(wordOnRow);
+      });
+
+      completeRow.sort((a, b) => a.col - b.col);
+
+      const completedWord = Word(
+        completeRow.map(w => w.word).join(''),
+        wordRow,
+        0,
+        createId(),
+        collisionDetector,
+        'COMPLETED',
+        'completed'
+      );
+
+      words.push(completedWord);
+      stationaryWords.push(completedWord);
+      collisionDetector.addCollisionObject(completedWord);
+
+      stationaryWords = stationaryWords.filter(
+        word => !wordsOnRow.includes(word)
+      );
+      createStationaryWords(wordsToCreate);
+    }
+    // splitAndMergeWords(word);
   };
 
   const moveActiveWordRight = () => {
@@ -53,11 +163,16 @@ const Wordboard = (cols, rows, x, y) => {
     droppingWords[0]?.moveLeft();
   };
 
-  const dropActiveWord = () => {
-    const word = droppingWords.shift();
-    word.drop();
+  const rotateActiveWord = () => {
+    droppingWords[0]?.rotate();
+  };
 
-    splitAndMergeWords(word);
+  const isRowComplete = wordsOnRow => {
+    const colsCovered = wordsOnRow.reduce(
+      (acc, cur) => acc + cur.getCols().length,
+      0
+    );
+    return colsCovered === cols;
   };
 
   const splitAndMergeWords = handledWord => {
@@ -106,10 +221,6 @@ const Wordboard = (cols, rows, x, y) => {
     );
   };
 
-  const rotateActiveWord = () => {
-    droppingWords[0].rotate();
-  };
-
   const addRow = row => {
     droppingWords = droppingWords.filter(word => {
       if (word.checkDown().length !== 0) {
@@ -134,7 +245,29 @@ const Wordboard = (cols, rows, x, y) => {
 
   const getWords = () => [...stationaryWords, ...droppingWords];
 
+  const getSimpleWords = () => {};
+
   const getCollisionDetector = () => collisionDetector;
+
+  const createStationaryWords = words => {
+    words.forEach(word => {
+      const createdWord = Word(
+        word.word,
+        word.row,
+        word.col,
+        createId(),
+        collisionDetector
+      );
+
+      if (word.orientation === 'VERTICAL') {
+        createdWord.rotate(true);
+      }
+
+      words.push(createdWord);
+      stationaryWords.push(createdWord);
+      collisionDetector.addCollisionObject(createdWord);
+    });
+  };
 
   const setWords = wordSet => {
     wordSet.forEach((word, i) => {
@@ -146,12 +279,18 @@ const Wordboard = (cols, rows, x, y) => {
         collisionDetector
       );
 
+      if (word.orientation === 'VERTICAL') {
+        createdWord.rotate(true);
+      }
+
       words.push(createdWord);
       droppingWords.push(createdWord);
     });
   };
 
-  const draw = () => {};
+  const draw = () => {
+    drawer.draw(getWords());
+  };
 
   return {
     addWord,
@@ -164,6 +303,7 @@ const Wordboard = (cols, rows, x, y) => {
     getActiveWord,
     getWords,
     setWords,
+    getSimpleWords,
     getCollisionDetector,
     draw
   };

@@ -1,5 +1,7 @@
 import { loadImage } from './drawHelper';
 import Animation from './Animation';
+import CollisionDetector from '../logic/CollisionDetector';
+import Word from '../game_objects/Word';
 
 const GAMEBOARD_TILE_WIDTH = 20;
 const CHAR_TILE_X_OFFSET = 6;
@@ -11,6 +13,9 @@ const wordBoardDrawer = (boardRows, boardCols, drawSprite, scale = 1) => {
   const rows = boardRows + 2;
   const cols = boardCols + 2;
   const tileSize = GAMEBOARD_TILE_WIDTH * scale;
+
+  const col = CollisionDetector(500, 500);
+  const word = Word('abcdefgrmtkl', 1, 1, 'id-1', col);
 
   const canvas = document.createElement('canvas');
   canvas.width = cols * tileSize;
@@ -131,6 +136,8 @@ const wordBoardDrawer = (boardRows, boardCols, drawSprite, scale = 1) => {
   const draw = (drawCtx, x, y, words, completedRows) => {
     drawBoardCharacterTiles(words, completedRows);
     drawAnimations();
+
+    word.draw(drawCtx);
 
     drawCtx.drawImage(canvas, x, y);
 

@@ -4,8 +4,9 @@ const wordBumpAnimation = word => {
   let currentFrame = 0;
   let lastTime = Date.now();
   let animationDone = false;
+  let bumpDirection = 'left';
 
-  const draw = (ctx, word, x, y, bumpDirection) => {
+  const draw = (ctx, word, x, y) => {
       const width = widths[currentFrame];
       ctx.drawImage(
         word,
@@ -28,9 +29,15 @@ const wordBumpAnimation = word => {
     }
   };
 
+  const start = direction => {
+    bumpDirection = direction;
+    animationDone = false;
+    currentFrame = 0;
+  }
+
   const isAnimationDone = () => animationDone;
 
-  return { draw, isAnimationDone };
+  return { draw, isAnimationDone, start };
 };
 
 export default wordBumpAnimation;

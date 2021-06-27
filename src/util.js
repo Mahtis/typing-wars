@@ -1,5 +1,5 @@
 
-export const BACKEND_URL = document.location.origin
+export const BACKEND_URL = 'http://localhost:3000'
 
 // Creates an array from to, including to
 // To make things confusing, it cuts out negative values

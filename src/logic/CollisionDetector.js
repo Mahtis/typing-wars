@@ -18,7 +18,7 @@ const CollisionDetector = (boardWidth, boardHeight) => {
 
     if (endX > boardWidth) return true;
 
-    if (startY < 0) return true;
+    // if (startY < 0) return true;
 
     if (endY > boardHeight) return true;
 

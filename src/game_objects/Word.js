@@ -1,20 +1,29 @@
 import Hitbox from '../logic/Hitbox';
 import WordDrawer from '../drawing/WordDrawer';
+import { range } from '../util';
 
 export const dependencies = {
   wordDrawer: WordDrawer
-}
+};
 
 const tileSize = 20;
 
-const Word = (word, initialRow, initialCol, id, collisionDetector, type = 'NORMAL') => {
+const Word = (
+  word,
+  initialRow,
+  initialCol,
+  id,
+  collisionDetector,
+  type = 'NORMAL',
+  initialState = ''
+) => {
   const location = { x: initialCol * tileSize, y: initialRow * tileSize };
 
   const hitbox = Hitbox(location, tileSize * word.length, tileSize);
 
   const drawer = dependencies.wordDrawer(word, type);
 
-  let state = type === 'NORMAL' ? 'created' : '';
+  let state = initialState;
 
   const getId = () => id;
 
@@ -36,8 +45,8 @@ const Word = (word, initialRow, initialCol, id, collisionDetector, type = 'NORMA
     const collisionObjects = collisionDetector.checkCollision(newLocation, id);
 
     if (collisionObjects.length === 0) {
-      location.x = newLocation.startX;
-      location.y = newLocation.startY;
+      location.x = newX;
+      location.y = newY;
     }
 
     return collisionObjects.length === 0;
@@ -89,12 +98,13 @@ const Word = (word, initialRow, initialCol, id, collisionDetector, type = 'NORMA
 
   // Maybe a bit antipattern to do and undo a move
   // But it's simple and works, so for now it's good enough
-  const rotate = () => {
+  const rotate = (force = false) => {
     hitbox.rotate();
 
     if (
-      collisionDetector.isOutsideBoard(getHitbox()) ||
-      collisionDetector.checkCollision(getHitbox(), id).length !== 0
+      !force &&
+      (collisionDetector.isOutsideBoard(getHitbox()) ||
+        collisionDetector.checkCollision(getHitbox(), id).length !== 0)
     ) {
       hitbox.rotate();
     }
@@ -127,6 +137,49 @@ const Word = (word, initialRow, initialCol, id, collisionDetector, type = 'NORMA
     return checkLocation(newX, newY);
   };
 
+  const splitOnRow = splitRow => {
+    const row = getRow();
+    const col = getCol();
+
+    if (getOrientation() === 'HORIZONTAL') {
+      return [{ word, row, col, orientation: 'HORIZONTAL' }];
+    } else {
+      const wordRows = getRows(); // note this is in decending order
+      const splitPos = wordRows.findIndex(row => row === splitRow);
+      const newWords = [];
+
+      // characters above split row (i.e. smaller row number)
+      if (splitPos < wordRows.length - 1) {
+        newWords.push({
+          word: word.slice(splitPos + 1, word.length),
+          row: wordRows[splitPos + 1],
+          col,
+          orientation: 'VERTICAL'
+        });
+      }
+      // characters on the split row
+      if (splitPos >= 0 && splitPos <= wordRows.length - 1) {
+        newWords.push({
+          word: word.slice(splitPos, splitPos + 1),
+          row: wordRows[splitPos],
+          col,
+          orientation: 'VERTICAL'
+        });
+      }
+      // characters on below split row
+      if (splitPos > 0) {
+        newWords.push({
+          word: word.slice(0, splitPos),
+          row,
+          col,
+          orientation: 'VERTICAL'
+        });
+      }
+
+      return newWords;
+    }
+  };
+
   const splitToWordsByRows = () => {
     if (getOrientation() === 'HORIZONTAL') {
       return [
@@ -153,13 +206,34 @@ const Word = (word, initialRow, initialCol, id, collisionDetector, type = 'NORMA
 
   const getRow = () => location.y / tileSize;
 
+  const getRows = () => {
+    const startRow = location.y / tileSize;
+    const endRow =
+      getOrientation() === 'VERTICAL' ? startRow - word.length + 1 : startRow;
+    return range(endRow, startRow).reverse();
+  };
+
   const getCol = () => location.x / tileSize;
+
+  const getCols = () => {
+    const startCol = location.x / tileSize;
+    const endCol =
+      getOrientation() === 'HORIZONTAL' ? startCol + word.length - 1 : startCol;
+    return range(startCol, endCol);
+  };
 
   const destroy = () => {
     state = 'DESTROYED';
   };
 
-  const draw = ctx => drawer.draw(ctx, location, getOrientation(), state);
+  const draw = ctx => {
+    drawer.draw(ctx, location, getOrientation(), state);
+    // const l = hitbox.getHitboxLocation();
+    // ctx.fillRect(l.startX, l.startY, l.endX - l.startX, l.endY - l.startY)
+    if (state !== '') {
+      state = '';
+    }
+  };
 
   return {
     moveUp,
@@ -178,8 +252,11 @@ const Word = (word, initialRow, initialCol, id, collisionDetector, type = 'NORMA
     checkDown,
     getLocation,
     getRow,
+    getRows,
     getCol,
+    getCols,
     splitToWordsByRows,
+    splitOnRow,
     destroy,
     getCollisionDetector,
     draw

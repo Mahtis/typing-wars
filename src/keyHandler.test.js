@@ -67,16 +67,17 @@ describe('keyHandler', () => {
     let gameKeyListener;
 
     beforeEach(() => {
-      gameKeyListener = handler.gameKeyHandler(
-        typingHandlerMock,
-        boardMovementHandlerStub
-      );
       rotateStub = { key: 'ArrowUp', preventDefault: jest.fn() };
       leftStub = { key: 'ArrowLeft', preventDefault: jest.fn() };
       rightStub = { key: 'ArrowRight', preventDefault: jest.fn() };
       dropStub = { key: 'ArrowDown', preventDefault: jest.fn() };
-    });
-
+      
+      gameKeyListener = handler.gameKeyHandler(
+        typingHandlerMock,
+        boardMovementHandlerStub
+        );
+      });
+      
     it('if event is up arrow, calls word rotation', () => {
       gameKeyListener(rotateStub);
 

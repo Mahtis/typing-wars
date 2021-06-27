@@ -1,10 +1,10 @@
 const wordStoopedAnimation = word => {
   const sizes = [
-    { width: 2, height: 2 },
-    { width: 4, height: 4 },
-    { width: 8, height: 6 },
-    { width: 4, height: 4 },
-    { width: 2, height: 2 },
+    { width: 6, height: 2 },
+    { width: 12, height: 4 },
+    { width: 18, height: 6 },
+    { width: 10, height: 4 },
+    { width: 6, height: 2 },
     { width: 0, height: 0 }
   ];
   const frameDuration = 10;
@@ -35,9 +35,14 @@ const wordStoopedAnimation = word => {
     }
   };
 
+  const start = () => {
+    animationDone = false;
+    currentFrame = 0;
+  }
+
   const isAnimationDone = () => animationDone;
 
-  return { draw, isAnimationDone };
+  return { draw, isAnimationDone, start };
 };
 
 export default wordStoopedAnimation;

@@ -12,6 +12,7 @@ import waitingOpponentDrawer from './drawing/waitingOpponentDrawer';
 import _scoreDrawer from './drawing/scoreDrawer';
 import drawHelper from './drawing/mainDrawer';
 import { range } from './util';
+import Wordboard from './game_objects/Wordboard';
 
 const FALL_SPEED = 500;
 const BOARD_ROWS = 30;
@@ -45,9 +46,23 @@ const startGame = async () => {
   const winMatch = () => {
     gameState = 'WON';
   };
+  // This seems to be the easiest way to ensure that the VCR OSD Mono font is loaded
+  await document.fonts.load('15.5px VCR OSD Mono');
+
+  const canvas = document.getElementById('game');
+
+  const helper = await drawHelper();
+
+  const wordboard = Wordboard(
+    BOARD_COLS,
+    BOARD_ROWS,
+    20,
+    20,
+    canvas.getContext('2d')
+  );
 
   const boardState = boardStateHandler(BOARD_ROWS, BOARD_COLS, loseMatch, 0);
-  const connection = clientConnection(boardState.addWord);
+  const connection = clientConnection(wordboard.addWord);
   connection.initConnection();
   const words = await fetchWords();
 
@@ -56,21 +71,14 @@ const startGame = async () => {
 
   const handler = keyHandler();
 
-  // This seems to be the easiest way to ensure that the VCR OSD Mono font is loaded
-  await document.fonts.load('15.5px VCR OSD Mono');
-
-  const canvas = document.getElementById('game');
-
-  const helper = await drawHelper();
-
-  const board = gameBoard(canvas, typingState, boardState, helper);
+  const board = gameBoard(canvas, typingState, null, helper);
 
   board.initBoard();
 
   const addRowsCallback = rows => {
     boardState.addRows(rows);
     // range() "to" is inclusive,
-    // so that is taken into account using BOARD_ROWS in "to" without the -1 
+    // so that is taken into account using BOARD_ROWS in "to" without the -1
     helper.addRows(range(BOARD_ROWS - rows.length, BOARD_ROWS - 1));
   };
 
@@ -127,7 +135,12 @@ const startGame = async () => {
 
           document.addEventListener(
             'keydown',
-            handler.gameKeyHandler(typingState.updateString, boardState)
+            handler.gameKeyHandler(typingState.updateString, {
+              rotateWord: wordboard.rotateActiveWord,
+              dropWord: wordboard.dropActiveWord,
+              moveWordLeft: wordboard.moveActiveWordLeft,
+              moveWordRight: wordboard.moveActiveWordRight
+            })
           );
         }
 
@@ -138,10 +151,11 @@ const startGame = async () => {
       case 'PLAYING':
         // actual game loop
         const currentTime = Date.now();
-        const wordboard = boardState.getWordBoard();
+        const wordboardList = boardState.getWordBoard();
         if (currentTime >= lastMoveDown + FALL_SPEED) {
           boardState.moveWordsDown();
-          connection.sendBoard(wordboard);
+          wordboard.moveWordsDown();
+          connection.sendBoard(wordboardList);
           lastMoveDown = currentTime;
         }
 
@@ -149,9 +163,14 @@ const startGame = async () => {
 
         if (completed.length > lastCompleted.length) {
           boardState.clearDroppingWords();
-          const newRows = completed.slice(lastCompleted.length, completed.length);
+          const newRows = completed.slice(
+            lastCompleted.length,
+            completed.length
+          );
 
-          const rowsToSend = wordboard.filter((row, i) => newRows.includes(i));
+          const rowsToSend = wordboardList.filter((row, i) =>
+            newRows.includes(i)
+          );
 
           connection.sendRows(rowsToSend);
 
@@ -159,8 +178,8 @@ const startGame = async () => {
 
           lastCompleted = [...completed];
         }
-
-        board.draw(wordboard, { completed, added });
+        board.draw(wordboardList, { completed, added });
+        wordboard.draw();
         scoreDrawer.draw();
         break;
       case 'LOST':

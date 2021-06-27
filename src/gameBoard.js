@@ -79,7 +79,7 @@ const gameBoard = (canvas, stringState, boardStateHandler, drawHelper) => {
   const draw = (wordboard, completedRows) => {
     const ctx = canvas.getContext('2d');
     drawGameArea(ctx);
-    drawWordBoard(wordboard, completedRows);
+    // drawWordBoard(wordboard, completedRows);
     drawOpponentBoard(ctx);
     drawText(ctx);
   };

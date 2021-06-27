@@ -28,9 +28,14 @@ const wordCreatedAnimation = word => {
     }
   };
 
+  const start = () => {
+    animationDone = false;
+    currentFrame = 0;
+  }
+
   const isAnimationDone = () => animationDone;
 
-  return { draw, isAnimationDone };
+  return { draw, isAnimationDone, start };
 };
 
 export default wordCreatedAnimation;

@@ -58,20 +58,20 @@ describe('CollisionDetector', () => {
       expect(collision).toBe(true);
     });
 
-    it('if object is going outside from top of board, returns collision', () => {
-      const collidingHitbox = {
-        getHitbox: () => ({ startX: 8, endX: 10, startY: -1, endY: 4 })
-      };
+    // it('if object is going outside from top of board, returns collision', () => {
+    //   const collidingHitbox = {
+    //     getHitbox: () => ({ startX: 8, endX: 10, startY: -1, endY: 4 })
+    //   };
 
-      const collision = collisionDetector.isOutsideBoard({
-        startX: 8,
-        endX: 10,
-        startY: -1,
-        endY: 4
-      });
+    //   const collision = collisionDetector.isOutsideBoard({
+    //     startX: 8,
+    //     endX: 10,
+    //     startY: -1,
+    //     endY: 4
+    //   });
 
-      expect(collision).toBe(true);
-    });
+    //   expect(collision).toBe(true);
+    // });
 
     it('if object is going outside from bottom of board, returns collision', () => {
       const collidingHitbox = {

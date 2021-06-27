@@ -2,7 +2,7 @@ import Wordboard from './Wordboard';
 import Word from './Word';
 import { range } from '../util';
 
-jest.mock('../drawing/SpriteProvider')
+jest.mock('../drawing/SpriteProvider');
 
 describe('Wordboard', () => {
   let wordboard;
@@ -300,6 +300,69 @@ describe('Wordboard', () => {
       wordboard.rotateActiveWord();
 
       expect(wordboard.getActiveWord().getOrientation()).toBe('VERTICAL');
+    });
+  });
+
+  describe('completing a row with a rotated word', () => {
+    beforeEach(() => {
+      wordboard.setWords([
+        { word: 'word', row: 9, col: 16 },
+        { word: 'lookatmy', row: 9, col: 0 },
+        { word: 'erylong', row: 5, col: 9 },
+        { word: 'vsomething', row: 5, col: 8 }
+      ]);
+
+      wordboard.moveWordsDown();
+      wordboard.dropActiveWord();
+      wordboard.rotateActiveWord();
+      wordboard.dropActiveWord();
+    });
+
+    it('result in a board with two words', () => {
+      console.log(wordboard.getWords().map(w => w.getWord()));
+      expect(wordboard.getWords().length).toBe(2);
+    });
+
+    it('produces a whole row word that is a combination of all words', () => {
+      expect(wordboard.getWords()[0].getWord()).toBe('lookatmyverylongword');
+    });
+
+    it('produces a new vertical word without the character that is now part of the completed row', () => {
+      expect(wordboard.getWords()[1].getWord()).toBe('something');
+    });
+  });
+
+  describe('completing multiple rows at the same time', () => {
+    beforeEach(() => {
+      /*
+      001234567890123456789
+      1
+      2
+      3
+      4
+      5
+      6                   e
+      7anotherlongthingherx
+      8        xxxxx      d
+      9lookatmyverylongwor
+      /01234567890123456789
+      */
+      wordboard.setWords([
+        { word: 'lookatmyverylongwor', row: 9, col: 0 },
+        { word: 'xxxxx', row: 8, col: 8 },
+        { word: 'anotherlong', row: 7, col: 0 },
+        { word: 'thingher', row: 7, col: 11 },
+        { word: 'dxe', row: 8, col: 19, orientation: 'VERTICAL' }
+      ]);
+
+      wordboard.moveWordsDown();
+      wordboard.moveWordsDown();
+    });
+
+    it('results in a board with correctly completed rows', () => {
+      const expected = ['lookatmyverylongword', 'anotherlongthinghere', 'xxxxx', 'x'].sort()
+      const actual = wordboard.getWords().map(word => word.getWord()).sort()
+      expect(actual).toEqual(expected)
     });
   });
 
